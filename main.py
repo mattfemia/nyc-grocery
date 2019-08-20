@@ -5,16 +5,34 @@ from grocery import *
 
 # ---------- PROGRAM BEGINS HERE ---------- #
 
-db = connectdb()
+password = os.getenv("DATABASE_PW")
+mydb = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    passwd=password,
+    auth_plugin='mysql_native_password',
+    database="Grocery"
+)
 
+db = mydb.cursor()
+
+# ---------- Start menu ------------ #
 navigate = loadStartMenu()
 
-if navigate == "1":
-    username = signin()
-elif navigate == "2":
-    username = signup()
+currentUser = UserAccount()
 
-navigate = mainMenu(username)
+if navigate == "1":
+    currentUser.username = signin()
+elif navigate == "2":
+    newUserName = input("Please enter a username: ")
+    currentUser.checkUsername(newUserName, db)
+
+currentUser.username = newUserName
+currentUser.updateUsername(currentUser.username, db, mydb)
+
+
+# ---------- Main Menu ---------- #
+navigate = mainMenu(newUserName)
 
 if navigate == "1":
     print("Edit/view my grocery lists\n")
@@ -39,7 +57,7 @@ database = {"Milk": 4.99, "Eggs": 3.79, "Bananas": 2.16} # placeholder for testi
 
 
 myList = GroceryList()
-myList.user = username
+myList.user = currentUser.username
 myList.addToCart(database, "Milk", "Eggs")
 
 print("My cart = ", end='')

@@ -6,19 +6,20 @@
 import mysql.connector
 import os
 
-def connectdb():
-    password = os.getenv("DATABASE_PW")
-    mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd=password,
-        auth_plugin='mysql_native_password',
-        database="Grocery"
-    )
+# Temporarily placing inside main.py to avoid -- ReferenceError: weakly-referenced object no longer exists
+# def connectdb():
+#     password = os.getenv("DATABASE_PW")
+#     mydb = mysql.connector.connect(
+#         host="localhost",
+#         user="root",
+#         passwd=password,
+#         auth_plugin='mysql_native_password',
+#         database="Grocery"
+#     )
 
-    db = mydb.cursor()
+#     db = mydb.cursor()
 
-    return db
+#     return db
 
 def loadStartMenu():
     """Prompts the main menu options to load"""
@@ -37,11 +38,16 @@ def loadStartMenu():
 
     return startmenu
 
-def signup():
+def signup(cursor):
     """ Setup user account with username, password, email"""
     username = input("Please enter a username: ")
-    # if username in database already --> throw error, re-prompt
-    # else store in database
+    cursor.execute("SELECT username FROM accounts WHERE username = username")
+    result = cursor.fetchall()
+    if result:
+        print("Name is in database!")
+    else:
+        print("Name is not in database")
+
     password = input("Please enter a password: ")
     # if password doesn't meet requirements --> throw error, re-prompt
     # else store in database
@@ -65,7 +71,7 @@ def signin():
 
 def mainMenu(username):
     """ Prints the main menu options to the terminal """
-    print("\n~~ Welcome " + username + "! ~~ \n\nWhat would you like to do?")
+    print("\n\n\n\n\n~~ Welcome " + username + "! ~~ \n\nWhat would you like to do?")
     print("1 --- Edit/view my grocery lists\n2 --- Create a new list\n3 --- Lookup item\n4 --- Show all available items\n5 --- Account settings\n")
 
     navigate = input("Please enter a number in the menu: ")
@@ -87,7 +93,38 @@ def priceLookup(item, database):
     except:
         print("Item is not currently in our database \nPlease try a different item")
 
-# TODO: Update user class based on accounts table in database
+class UserAccount:
+    def __init__(self):
+        self.username = ""
+        self.password = ""
+        self.firstname = ""
+        self.lastname = ""
+        self.email = ""
+        self.phone = ""
+        self.listCount = 0
+        self.registrationDate = ""
+        self.userid = 0
+    def updateUsername(self, username, cursor, database):
+        """ Enters username value into the database """
+        cursor.execute(f"INSERT INTO accounts (username) VALUES ('{username}')")
+        database.commit()
+        # insertUsername = "INSERT INTO accounts (username) VALUES (%s)"
+        # username = username
+    def checkUsername(self, username, cursor):
+        cursor.execute(f"SELECT username FROM accounts WHERE username = '{username}' ")
+        
+        result = cursor.fetchall()
+        while len(result) != 0:
+            print("\n\n\n\n\nSorry that username is currently unavailable\n")
+            username = input("Please select another username: ")
+            cursor.execute(f"SELECT username FROM accounts WHERE username = '{username}' ")
+            result = cursor.fetchall()
+
+        # --- Can't submit into database until all required fields are full --- #
+
+        
+
+
 class User:
     def __init__(self):
         self.user = self
@@ -113,7 +150,6 @@ class User:
             else:
                 print("Error: List could not be saved.")
     
-        
 class GroceryList:
     def __init__(self):
         self.user = ""
@@ -125,7 +161,7 @@ class GroceryList:
     def addToCart(self, database, *listItems):
         """ Appends the main groceryList data structure """
         for item in listItems:
-            if item in database: # TODO: Update this to apply to all locations
+            if item in database:
                 self.cart.append(item)
                 self.total += database[item]
                 self.numOfItems += 1
