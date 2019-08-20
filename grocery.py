@@ -1,4 +1,3 @@
-#TODO: Setup all database tables
 #TODO: Mainmenu functionality
 #TODO: Figure out how to split into multiple files
 
@@ -81,10 +80,10 @@ def mainMenu(username):
 
     return navigate
 
-def priceLookup(item):
+def priceLookup(item, database):
     """ If grocery item is in the 'database', print the price of the item """
     try:
-        print("Price of " + f'{item}' + " = " + "$" + f'{unionMarket[item]}')
+        print("Price of " + f'{item}' + " = " + "$" + f'{database[item]}')
     except:
         print("Item is not currently in our database \nPlease try a different item")
 
@@ -95,7 +94,7 @@ class User:
         self.location = "East Village" # TODO: Update this to apply to all locations
         self.lists = []
 
-    def setLocation(self, newLocation):
+    def setLocation(self, newLocation, locations):
         """ Defines user's location for stores """
         if newLocation in locations:
             self.location = newLocation
@@ -117,69 +116,22 @@ class User:
         
 class GroceryList:
     def __init__(self):
-        self.user = username
+        self.user = ""
         self.listName = "Grocery List"
         self.total = 0.00
         self.numOfItems = 0
         self.cart = []
         
-    def addToCart(self, *listItems):
+    def addToCart(self, database, *listItems):
         """ Appends the main groceryList data structure """
         for item in listItems:
-            if item in unionMarket: # TODO: Update this to apply to all locations
+            if item in database: # TODO: Update this to apply to all locations
                 self.cart.append(item)
-                self.total += unionMarket[item]
+                self.total += database[item]
                 self.numOfItems += 1
-                print(item + " = " + f'{unionMarket[item]}')
+                print(item + " = " + f'{database[item]}')
             else:
                 print("Item not currently in database")
     def printTotal(self):
         """ Formats the total cost to currency """
         print("Your total = $" + f'{round(self.total, 2)}')
-
-
-# ---------- PROGRAM BEGINS HERE ---------- #
-
-db = connectdb()
-
-navigate = loadStartMenu()
-
-if navigate == "1":
-    username = signin()
-elif navigate == "2":
-    username = signup()
-
-navigate = mainMenu(username)
-
-if navigate == "1":
-    print("Edit/view my grocery lists")
-elif navigate == "2":
-    print("Create a new list")
-elif navigate == "3":
-    print("Lookup item")
-elif navigate == "4":
-    print("Create a new list")
-elif navigate == "5":
-    print("Show all available")
-
-
-
-
-# ----TESTING----
-
-locations = ["East Village"] # placeholder for testing
-
-unionMarket = {"Milk": 4.99, "Eggs": 3.79, "Bananas": 2.16} # placeholder for testing
-
-
-
-myList = GroceryList()
-myList.addToCart("Milk", "Eggs")
-print(myList.cart)
-myList.printTotal()
-print(myList.numOfItems)
-priceLookup("Milk")
-# user1 = User()
-# user1.setLocation("East Village")
-
-# print(user1.user)
