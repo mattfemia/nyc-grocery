@@ -7,6 +7,7 @@ import mysql.connector
 import os
 from validate_email import validate_email
 from disposable_email_domains import blocklist
+from datetime import datetime
 
 # Temporarily placing inside main.py to avoid -- ReferenceError: weakly-referenced object no longer exists
 # def connectdb():
@@ -106,13 +107,6 @@ class UserAccount:
         self.listCount = 0
         self.registrationDate = ""
         self.userid = 0
-    def updateUsername(self, username, cursor, database):
-        """ Enters username value into the database """
-
-        cursor.execute(f"INSERT INTO accounts (username) VALUES ('{username}')")
-        database.commit()
-        # insertUsername = "INSERT INTO accounts (username) VALUES (%s)"
-        # username = username
 
     def checkUsername(self, username, cursor, UserAccount):
         """ Send query to database to check if username already exists. If query returns no value
@@ -165,25 +159,43 @@ class UserAccount:
          update these fields or not because they are not required in the database query """
 
         editDetails = input("\n\nWould you like to edit your account details [y/n]: ")
-        if editDetails == "y" or "Y" or "yes" or "Yes":    
+        print(editDetails)
+        if (editDetails == "y" or "Y" or "yes" or "Yes"):    
             firstName = input("First name: ")
             UserAccount.firstname = firstName
             lastName = input("Last name: ")
             UserAccount.lastname = lastName
             phoneNumber = input("Phone number: ")
             UserAccount.phone = phoneNumber
+        UserAccount.registrationDate = datetime.today().strftime('%Y-%m-%d')
 
-    def createAccount(self, username, cursor, UserAccount):
+    def createAccount(self, username, cursor, database, UserAccount):
         """ Combines all the functions that request the info required to create a user's 
-        account: username, password, email, first name, last name, and phone number """
+        account locally and in database. Fields: username, password, email, first name, 
+        last name, and phone number """
 
         UserAccount.checkUsername(username, cursor, UserAccount)
         UserAccount.createPassword(UserAccount)
         UserAccount.assignEmail(UserAccount)
         UserAccount.userDetails(UserAccount)
+        print(UserAccount.registrationDate)
 
+        sqlcommand = f"INSERT INTO accounts (username, firstname, lastname, email, password, \
+            phone, listcount, registrationdate) VALUES \
+                {UserAccount.username, UserAccount.firstname, UserAccount.lastname, UserAccount.email, UserAccount.password, int(UserAccount.phone), UserAccount.listCount, str(UserAccount.registrationDate)}"
+        cursor.execute(sqlcommand)
+        database.commit()
 
-        # --- Can't submit into database until all required fields are full --- #
+        cursor.execute(f"SELECT userid FROM accounts WHERE username = '{UserAccount.username}'")
+        accountID = cursor.fetchall()
+        UserAccount.userid = accountID
+
+    def updateUsername(self, username, cursor, database):
+        """ Enters username value into the database """
+        cursor.execute(f"INSERT INTO accounts (username) VALUES ('{username}')")
+        database.commit()
+        # insertUsername = "INSERT INTO accounts (username) VALUES (%s)"
+        # username = username
 
 
 class User:

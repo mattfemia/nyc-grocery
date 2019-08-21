@@ -8,7 +8,7 @@ from disposable_email_domains import blocklist
 # ---------- PROGRAM BEGINS HERE ---------- #
 
 password = os.getenv("DATABASE_PW")
-mydb = mysql.connector.connect(
+database = mysql.connector.connect(
     host="localhost",
     user="root",
     passwd=password,
@@ -16,7 +16,7 @@ mydb = mysql.connector.connect(
     database="Grocery"
 )
 
-db = mydb.cursor()
+cursor = database.cursor()
 
 # ---------- Start menu ------------ #
 navigate = loadStartMenu()
@@ -30,11 +30,9 @@ elif navigate == "2":
     newUserName = input("Please enter a username: ") 
 
 # Create account
-currentUser.createAccount(newUserName, db, currentUser)
+currentUser.createAccount(newUserName, cursor, database, currentUser)
 
-
-currentUser.updateUsername(currentUser.username, db, mydb)
-
+print(currentUser.userid)
 
 # ---------- Main Menu ---------- #
 navigate = mainMenu(newUserName)
@@ -49,7 +47,6 @@ elif navigate == "4":
     print("Create a new list\n")
 elif navigate == "5":
     print("Show all available\n")
-
 
 
 
