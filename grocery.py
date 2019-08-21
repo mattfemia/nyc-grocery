@@ -5,6 +5,8 @@
 
 import mysql.connector
 import os
+from validate_email import validate_email
+from disposable_email_domains import blocklist
 
 # Temporarily placing inside main.py to avoid -- ReferenceError: weakly-referenced object no longer exists
 # def connectdb():
@@ -106,23 +108,82 @@ class UserAccount:
         self.userid = 0
     def updateUsername(self, username, cursor, database):
         """ Enters username value into the database """
+
         cursor.execute(f"INSERT INTO accounts (username) VALUES ('{username}')")
         database.commit()
         # insertUsername = "INSERT INTO accounts (username) VALUES (%s)"
         # username = username
-    def checkUsername(self, username, cursor):
-        cursor.execute(f"SELECT username FROM accounts WHERE username = '{username}' ")
+
+    def checkUsername(self, username, cursor, UserAccount):
+        """ Send query to database to check if username already exists. If query returns no value
+        username is saved to current user's account """
         
+        cursor.execute(f"SELECT username FROM accounts WHERE username = '{username}' ")
         result = cursor.fetchall()
         while len(result) != 0:
             print("\n\n\n\n\nSorry that username is currently unavailable\n")
             username = input("Please select another username: ")
             cursor.execute(f"SELECT username FROM accounts WHERE username = '{username}' ")
             result = cursor.fetchall()
+        UserAccount.username = username
+
+    def createPassword(self, UserAccount):
+        """ Validates that password and retyped passwords match. After validation, user's
+        password field is updated to the chosen password """
+
+        while UserAccount.password == "":
+            password = input("\nCreate a password: ")
+            retype = input("Retype password to confirm: ")
+            match = (password == retype)
+            print(match)
+            if password == retype:
+                UserAccount.password = password
+            else:
+                print("\nERROR: Passwords do not match\n")
+
+    def assignEmail(self, UserAccount):
+        """ Requests user to type email address. Basic validation is done on the format.
+        Then updates the email field for the user's account """
+
+        while UserAccount.email == "":
+            email = input("Please enter your email address: ")
+            validate = validate_email('example@example.com')
+            if validate == True:
+                # validEmail = False
+                # while validEmail == False:
+                #     if email.split('@')[1] in blocklist:
+                #         message = "Please enter your permanent email address."
+                #         print(message)
+                #     else:
+                #         validEmail == True
+                UserAccount.email = email
+            else:
+                print("\nERROR: Invalid email. Please select your current email address")
+
+    def userDetails(self, UserAccount):
+        """ Requests first and last name, plus phone number for user. User is given option to
+         update these fields or not because they are not required in the database query """
+
+        editDetails = input("\n\nWould you like to edit your account details [y/n]: ")
+        if editDetails == "y" or "Y" or "yes" or "Yes":    
+            firstName = input("First name: ")
+            UserAccount.firstname = firstName
+            lastName = input("Last name: ")
+            UserAccount.lastname = lastName
+            phoneNumber = input("Phone number: ")
+            UserAccount.phone = phoneNumber
+
+    def createAccount(self, username, cursor, UserAccount):
+        """ Combines all the functions that request the info required to create a user's 
+        account: username, password, email, first name, last name, and phone number """
+
+        UserAccount.checkUsername(username, cursor, UserAccount)
+        UserAccount.createPassword(UserAccount)
+        UserAccount.assignEmail(UserAccount)
+        UserAccount.userDetails(UserAccount)
+
 
         # --- Can't submit into database until all required fields are full --- #
-
-        
 
 
 class User:

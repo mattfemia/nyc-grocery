@@ -1,0 +1,4 @@
+disposable_email_domains
+mysql-connector-python
+validate_email
+os

@@ -2,6 +2,8 @@
 import mysql.connector
 import os
 from grocery import *
+from validate_email import validate_email
+from disposable_email_domains import blocklist
 
 # ---------- PROGRAM BEGINS HERE ---------- #
 
@@ -21,13 +23,16 @@ navigate = loadStartMenu()
 
 currentUser = UserAccount()
 
+# signin or signup
 if navigate == "1":
     currentUser.username = signin()
 elif navigate == "2":
-    newUserName = input("Please enter a username: ")
-    currentUser.checkUsername(newUserName, db)
+    newUserName = input("Please enter a username: ") 
 
-currentUser.username = newUserName
+# Create account
+currentUser.createAccount(newUserName, db, currentUser)
+
+
 currentUser.updateUsername(currentUser.username, db, mydb)
 
 
