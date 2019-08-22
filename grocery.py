@@ -1,5 +1,5 @@
 #TODO: Mainmenu functionality
-#TODO: Figure out how to split into multiple files
+#TODO: Remove newUserName from the signup options
 
 #!!!!! SET ENVIRONMENT VARIABLE DATABASE_PW OR PROG WILL NOT RUN !!!!!
 
