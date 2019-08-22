@@ -62,12 +62,17 @@ def signup(cursor):
 
     return username
 
-def signin():
+def signin(cursor):
     username = input("Username: ")
-    # if username not in database, throw error message --> retry? or signup?
-    # else password
     password = input("Password: ")
-    # if password doesn't match users, throw error message --> retry or ..........?
+    cursor.execute("SELECT username, password FROM accounts WHERE username = username")
+    result = cursor.fetchall()
+    if result:
+        print("Name is in database!")
+    else:
+        print("Name is not in database")
+    password = input("Password: ")
+    
     print("\n\n")
 
     return username
@@ -158,6 +163,7 @@ class UserAccount:
         """ Requests first and last name, plus phone number for user. User is given option to
          update these fields or not because they are not required in the database query """
 
+        #TODO: FIX CONDITIONAL!!
         editDetails = input("\n\nWould you like to edit your account details [y/n]: ")
         print(editDetails)
         if (editDetails == "y" or "Y" or "yes" or "Yes"):    
