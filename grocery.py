@@ -62,20 +62,38 @@ def signup(cursor):
 
     return username
 
-def signin(cursor):
-    username = input("Username: ")
-    password = input("Password: ")
-    cursor.execute("SELECT username, password FROM accounts WHERE username = username")
-    result = cursor.fetchall()
-    if result:
-        print("Name is in database!")
-    else:
-        print("Name is not in database")
-    password = input("Password: ")
+def signin(cursor, UserAccount):
     
-    print("\n\n")
-
-    return username
+    accountValid = False
+    while accountValid == False:
+        try:
+            username = input("Username: ")
+            password = input("Password: ")
+            print(username)
+            username = f"{username}"
+            print(username)
+            cursor.execute(f"SELECT * FROM accounts WHERE username = '{username}'")
+        except mysql.connector.errors.ProgrammingError:
+            print("ERROR: Account information is not valid")
+        else:
+            result = cursor.fetchall() # list
+            if result:
+                print("Success!")
+                unpack = result[0] # tuple
+                (userid, user, first, last, email, pw, phone, listcount, regdate) = unpack # unpack tuple
+                UserAccount.username = user
+                UserAccount.firstname = first
+                UserAccount.lastname = last
+                UserAccount.email = email
+                UserAccount.password = pw
+                UserAccount.phone = phone
+                UserAccount.listCount = listcount
+                UserAccount.registrationDate = regdate
+                accountValid = True
+            else:
+                print("\n\n----- ERROR: Account information is not valid. Please retry or signup for an account -----\n")
+                loadStartMenu()
+            print("\n\n")
 
 def mainMenu(username):
     """ Prints the main menu options to the terminal """
@@ -171,9 +189,19 @@ class UserAccount:
             UserAccount.firstname = firstName
             lastName = input("Last name: ")
             UserAccount.lastname = lastName
-            phoneNumber = input("Phone number: ")
-            UserAccount.phone = phoneNumber
-        UserAccount.registrationDate = datetime.today().strftime('%Y-%m-%d')
+            
+            phone = False
+            while phone == False:
+                phoneNumber = input("Phone number: ")
+                try:
+                    float(phoneNumber)
+                except ValueError:
+                    print("Invalid phone number")
+                else:
+                    UserAccount.phone = phoneNumber
+                    phone = True
+        currentDate = datetime.today().strftime('%Y-%m-%d')
+        UserAccount.registrationDate = currentDate
 
     def createAccount(self, username, cursor, database, UserAccount):
         """ Combines all the functions that request the info required to create a user's 

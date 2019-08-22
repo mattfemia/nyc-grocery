@@ -25,7 +25,7 @@ currentUser = UserAccount()
 
 # signin or signup
 if navigate == "1":
-    currentUser.username = signin()
+    signin(cursor, currentUser)
 elif navigate == "2":
     newUserName = input("Please enter a username: ") 
 
