@@ -2,6 +2,7 @@
 import mysql.connector
 import os
 from grocery import *
+from mainmenu import *
 from validate_email import validate_email
 from disposable_email_domains import blocklist
 
@@ -13,7 +14,7 @@ database = mysql.connector.connect(
     user="root",
     passwd=password,
     auth_plugin='mysql_native_password',
-    database="Grocery"
+    database="grocery_test"
 )
 
 cursor = database.cursor()
@@ -28,14 +29,12 @@ if navigate == "1":
     signin(cursor, currentUser)
 elif navigate == "2":
     newUserName = input("Please enter a username: ") 
-
-# Create account
-currentUser.createAccount(newUserName, cursor, database, currentUser)
+    currentUser.createAccount(newUserName, cursor, database, currentUser)
 
 print(currentUser.userid)
 
 # ---------- Main Menu ---------- #
-navigate = mainMenu(newUserName)
+navigate = mainMenu(currentUser.username)
 
 if navigate == "1":
     print("Edit/view my grocery lists\n")
