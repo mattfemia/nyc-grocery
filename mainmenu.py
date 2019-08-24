@@ -1,6 +1,9 @@
 from grocery import *
 # TODO: Remove/change hours columns from STORES table
 # TODO: Add address column to STORES table
+# TODO: Create a list class
+# TODO: Transfer all functions into list class
+# TODO: Migrate files into separate list.py file?
 
 
 def mainMenu(username):

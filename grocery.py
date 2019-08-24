@@ -9,20 +9,6 @@ from validate_email import validate_email
 from disposable_email_domains import blocklist
 from datetime import datetime
 
-# Temporarily placing inside main.py to avoid -- ReferenceError: weakly-referenced object no longer exists
-# def connectdb():
-#     password = os.getenv("DATABASE_PW")
-#     mydb = mysql.connector.connect(
-#         host="localhost",
-#         user="root",
-#         passwd=password,
-#         auth_plugin='mysql_native_password',
-#         database="Grocery"
-#     )
-
-#     db = mydb.cursor()
-
-#     return db
 
 def loadStartMenu():
     """Prompts the main menu options to load"""
