@@ -39,7 +39,7 @@ navigate = mainMenu(currentUser.username)
 if navigate == "1":
     print("Edit/view my grocery lists\n")
 elif navigate == "2":
-    print("Create a new list\n")
+    createlist(cursor, database, currentUser)
 elif navigate == "3":
     print("Lookup item\n")
 elif navigate == "4":
