@@ -1,0 +1,4 @@
+- Convert to street vendor app?
+	- Gather info about street vendor locations
+	- Gather contact info
+- 
