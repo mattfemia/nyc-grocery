@@ -10,8 +10,17 @@ class Store:
         self.storeid = 0
         self.storename = ""
         self.address = ""
-    # def display():
+    # def displayStoreDetails():
 
+class Item:
+    def __init__(self):
+        self.itemid = 0
+        self.itemname = ""
+        self.price = 0.00
+        self.unit = ""
+        self.productSize = ""
+        self.storeid = 0
+    # def displayItem():
 
 def mainMenu(username):
     """ Prints the main menu options to the terminal """
@@ -30,7 +39,7 @@ def mainMenu(username):
 
     return navigate
 
-def createlist(cursor, database, UserAccount, Store):
+def createlist(cursor, database, UserAccount, Store, Item):
     """ Creates new list locally and in rdb """
     
     listname = input("Please enter a name for the list: ")
@@ -41,21 +50,21 @@ def createlist(cursor, database, UserAccount, Store):
     while optionSelect == False:
         if lookupMethod == "1":
 
-            #TODO: GIVE OPTION TO SELECT STORE BY NEIGHBORHOOD, LIST ALL STORES, ETC.
+            #TODO: GIVE OPTION TO SELECT STORE BY NEIGHBORHOOD, LIST ALL STORES, ETC (query location table instead)
 
             try:
                 storeName = input("Enter the name of the store: ")
                 storeName += "%"
-                query = f"SELECT storeid, storename, address FROM stores WHERE storename LIKE '{storeName}'"
+                query = f"SELECT storeid, storename, address FROM stores WHERE storename LIKE '{storeName}' ORDER BY storename ASC"
                 cursor.execute(query)
-                # Query storeName and return all results of that store
-                # Select exact store
+
                 # Give option to select inventory
-                optionSelect = True
-            except:
+                # --- 
+            except IndexError:
                 print("ERROR: Store not found")
                 lookupMethod = input("\n1 --- Select store location\n\n2 --- Lookup item\n")
             else:
+                optionSelect = True
                 storeResults = cursor.fetchall()
                 unpack = storeResults[0]
                 (storeid, storename, address) = unpack
@@ -66,22 +75,68 @@ def createlist(cursor, database, UserAccount, Store):
                 Store.address = address
 
                 #TODO: List all stores matching wildcard and display
+                # --- 
 
-                print("Options: \n")
-                storeSelect = input(f'{Store.storeid} ---' + " " + Store.storename + " @ " + Store.address + "\nSelect a store number: ")
-                if storeSelect == "1":
-                    print("Success")
+                userSelection = False
+                while userSelection == False:
+                    print("Options: \n")
+                    storeSelect = input(f'{Store.storeid} ---' + " " + Store.storename + " @ " + Store.address + "\nSelect a store number: ")
+                    
+                    if storeSelect == "1": # Dummy statement --------------------------------
+                        print("Success")
+                        userSelection = True
+                    else:
+                        print("\nERROR: Invalid selection")
 
-                print("\n\n")
+                    print("\n\n")
 
         elif lookupMethod == "2":
-            itemName = input("Enter the name of the item: ")
-            # Query the itemName in items DB
-            # Return all items containing that name with wildcard query
-            # order by price ascending
-            # Prompt user to select the exact item
-            # Append userList with itemid
-            optionSelect = True
+            try:
+                itemName = input("Enter the name of the item: ")
+                itemName += "%"
+
+                # JOIN query
+                # --- 
+
+                query = f"SELECT itemid, itemname, price, unit, productSize, storeid FROM items WHERE itemname LIKE '{itemName}' ORDER BY itemname ASC"
+                cursor.execute(query)
+            except:
+                print("ERROR: Item not found")
+                lookupMethod = input("\n1 --- Select store location\n\n2 --- Lookup item\n")
+            else:
+                # TODO: Return all objects not just one
+                # Enumerate query results?
+
+                optionSelect = True
+                itemResults = cursor.fetchall()
+                unpack = itemResults[0]
+                (itemid, itemname, price, unit, productSize, storeid) = unpack
+
+                # TODO: User selects which item
+                # --- 
+
+                Item.itemid = itemid
+                Item.itemname = itemname
+                Item.price = price
+                Item.unit = unit
+                Item.productSize = productSize
+                Item.storeid = storeid
+
+                userSelection = False
+                while userSelection == False:
+                    print("\n\nOptions: \n")
+                    itemSelection = input(f'\n{Item.itemid} ---' + " " + Item.itemname + " @ " + str(Item.price) + " per " + Item.unit + "\nSelect an item to add to your list: ")
+                    
+                    if itemSelection == "1": # Dummy statement --------------------------------
+                        userList[f"{Item.itemname}"] = f"{Item.price} / {Item.unit}"
+                        print(f"\n{Item.itemname} successfully added to {listname}!")
+                        print(f"\n\nUser list = \n{userList}\n\n")
+                        userSelection = True
+                    else:
+                        print("\nERROR: Invalid selection")
+
+                    print("\n\n")
+
         else:
             print("ERROR: Invalid option selected. Please type 1 or 2 and then hit enter.")
             lookupMethod = input("\n1 --- Select store location\n\n2 --- Lookup item\n")
@@ -89,15 +144,11 @@ def createlist(cursor, database, UserAccount, Store):
     #TODO: Create lookup item function and embed inside of this function
 
     """ 
-
-
-
         - Select store
             - Query locations, then lookup
         - Lookup item
-    - Query for item id
-    - Append list object with item id
-    - Print out current list of items
+
+
     - Prompt:
         - Next item
             - Repeat lookup item options
