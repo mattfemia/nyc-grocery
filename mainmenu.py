@@ -1,4 +1,5 @@
 from grocery import *
+import pandas as pd
 # TODO: Remove/change hours columns from STORES table
 # TODO: Add address column to STORES table
 # TODO: Create a list class
@@ -216,4 +217,19 @@ def priceLookup(cursor):
             # TODO: FIX CONDITIONAL
             if nextItem != "y" or "Y" or "yes" or "Yes":
                 lookup = True
+
+
+def showAllItems(cursor, Item):
+    """ Prints all available items to window from database """
+    query = "SELECT * FROM items"
+    cursor.execute(query)
+    itemResults = cursor.fetchall()
+
+    df = pd.DataFrame(itemResults, columns=['Item ID', 'Item', 'Store ID', 'Category', 'Price', 'Unit', 'Size', 'Subcategory'])    
+
+    # TODO: Remove index
+    # ---
+
+    print(df)    
+
             

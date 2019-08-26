@@ -3,3 +3,4 @@ mysql-connector-python
 validate_email
 os
 Flask
+pandas

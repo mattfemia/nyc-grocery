@@ -45,6 +45,6 @@ elif navigate == "2":
 elif navigate == "3":
     priceLookup(cursor)
 elif navigate == "4":
-    print("Create a new list\n")
+    showAllItems(cursor, currentItem)
 elif navigate == "5":
-    print("Show all available\n")
+    print("Account settings\n")
