@@ -52,6 +52,7 @@ def createlist(cursor, database, UserAccount, Store, Item):
 
             #TODO: GIVE OPTION TO SELECT STORE BY NEIGHBORHOOD, LIST ALL STORES, ETC (query location table instead)
 
+            # ---------- QUERY store ----------
             try:
                 storeName = input("Enter the name of the store: ")
                 storeName += "%"
@@ -69,7 +70,8 @@ def createlist(cursor, database, UserAccount, Store, Item):
                 unpack = storeResults[0]
                 (storeid, storename, address) = unpack
 
-                # Testing for perfect user entry:
+                # ---------- Append Store object ----------
+                # Testing using perfect user entry:
                 Store.storeid = storeid
                 Store.storename = storename
                 Store.address = address
@@ -91,6 +93,7 @@ def createlist(cursor, database, UserAccount, Store, Item):
                     print("\n\n")
 
         elif lookupMethod == "2":
+            # ---------- Query Item ----------
             try:
                 itemName = input("Enter the name of the item: ")
                 itemName += "%"
@@ -115,6 +118,7 @@ def createlist(cursor, database, UserAccount, Store, Item):
                 # TODO: User selects which item
                 # --- 
 
+                # ---------- Append Item object ---------- 
                 Item.itemid = itemid
                 Item.itemname = itemname
                 Item.price = price
@@ -130,12 +134,19 @@ def createlist(cursor, database, UserAccount, Store, Item):
                     if itemSelection == "1": # Dummy statement --------------------------------
                         userList[f"{Item.itemname}"] = f"{Item.price} / {Item.unit}"
                         print(f"\n{Item.itemname} successfully added to {listname}!")
+
                         print(f"\n\nUser list = \n{userList}\n\n")
                         userSelection = True
                     else:
                         print("\nERROR: Invalid selection")
 
                     print("\n\n")
+
+                # TODO: Would you like to add more items?
+                # ---
+
+                # TODO: Insert user's list details into list table
+                # ---
 
         else:
             print("ERROR: Invalid option selected. Please type 1 or 2 and then hit enter.")
@@ -147,7 +158,6 @@ def createlist(cursor, database, UserAccount, Store, Item):
         - Select store
             - Query locations, then lookup
         - Lookup item
-
 
     - Prompt:
         - Next item
@@ -163,9 +173,47 @@ def createlist(cursor, database, UserAccount, Store, Item):
     # database.commit()
         
 
-def priceLookup(item, database):
+def priceLookup(cursor):
     """ If grocery item is in the 'database', print the price of the item """
-    try:
-        print("Price of " + f'{item}' + " = " + "$" + f'{database[item]}')
-    except:
-        print("Item is not currently in our database \nPlease try a different item")
+    lookup = False
+    while lookup == False:
+        try:
+            itemName = input("Enter the name of the item: ")
+            itemName += "%"
+
+            # JOIN query
+            # --- 
+
+            query = f"SELECT itemid, itemname, price, unit, productSize, storeid FROM items WHERE itemname LIKE '{itemName}' ORDER BY itemname ASC"
+            cursor.execute(query)
+        except IndexError:
+            print("ERROR: Item not found")
+        else:
+            # TODO: Return all objects not just one
+            # Enumerate query results?
+
+            itemResults = cursor.fetchall()
+            unpack = itemResults[0]
+            (itemid, itemname, price, unit, productSize, storeid) = unpack
+
+            # TODO: User selects which item
+            # --- 
+
+            # ---------- Append Item object ---------- 
+            Item.itemid = itemid
+            Item.itemname = itemname
+            Item.price = price
+            Item.unit = unit
+            Item.productSize = productSize
+            Item.storeid = storeid
+
+            print("\nResults: \n")
+            print(f'{Item.itemid} ---' + " " + Item.itemname + " @ " + str(Item.price) + " per " + Item.unit + "\n")
+            
+            # ---------- Lookup another item ----------
+            nextItem = input("Would you like to select another item? [y/n]: ")
+            
+            # TODO: FIX CONDITIONAL
+            if nextItem != "y" or "Y" or "yes" or "Yes":
+                lookup = True
+            
