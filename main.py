@@ -34,21 +34,25 @@ elif navigate == "2":
     currentUser.createAccount(newUserName, cursor, database, currentUser)
 
 # ---------- Main Menu ---------- #
-navigate = mainMenu(currentUser.username)
-currentStore = Store()
-currentItem = Item()
 
-if navigate == "1":
-    print("Edit/view my grocery lists\n")
-elif navigate == "2":
-    createlist(cursor, database, currentUser, currentStore, currentItem)
-elif navigate == "3":
-    priceLookup(cursor, currentUser)
-elif navigate == "4":
-    showAllItems(cursor, currentItem)
-elif navigate == "5":
-    print("Account settings\n")
-elif navigate == "6":
-    navigate = startMenu()
-elif navigate == "7":
-    print("Exiting program ...\n\n\n\n")
+exitProgram = False
+while exitProgram == False:
+    navigate = mainMenu(currentUser.username)
+    currentStore = Store()
+    currentItem = Item()
+    
+    if navigate == "1":
+        print("Edit/view my grocery lists\n")
+    elif navigate == "2":
+        createlist(cursor, database, currentUser, currentStore, currentItem)
+    elif navigate == "3":
+        priceLookup(cursor)
+    elif navigate == "4":
+        showAllItems(cursor, currentItem)
+    elif navigate == "5":
+        print("Account settings\n")
+    elif navigate == "6":
+        navigate = startMenu()
+    elif navigate == "7":
+        print("Exiting program ...\n\n\n\n")
+        exitProgram = True

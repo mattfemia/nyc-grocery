@@ -3,8 +3,6 @@
 	- Gather contact info
 
 
-
-
 mainmenu.py
 - Create a "return to previous menu function"
 - Create "add another item?" function

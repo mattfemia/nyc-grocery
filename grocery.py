@@ -186,7 +186,7 @@ def createlist(cursor, database, UserAccount, Store, Item):
     # database.commit()
         
 
-def priceLookup(cursor, UserAccount):
+def priceLookup(cursor):
     """ If grocery item is in the 'database', print the price of the item """
     lookup = False
     while lookup == False:
@@ -231,7 +231,6 @@ def priceLookup(cursor, UserAccount):
                 lookup = False
             elif (nextItem == "n") or (nextItem == "N"):
                 lookup = True
-                mainMenu(UserAccount.username)
 
 
 def showAllItems(cursor, Item):
