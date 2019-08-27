@@ -14,7 +14,7 @@ database = mysql.connector.connect(
     user="root",
     passwd=password,
     auth_plugin='mysql_native_password',
-    database="grocery_test"
+    database="Grocery"
 )
 
 cursor = database.cursor()
@@ -48,3 +48,7 @@ elif navigate == "4":
     showAllItems(cursor, currentItem)
 elif navigate == "5":
     print("Account settings\n")
+elif navigate == "6":
+    print("Sign-out")
+elif navigate == "7":
+    print("Quit")
