@@ -7,3 +7,9 @@ mainmenu.py
 - Create a "return to previous menu function"
 - Create "add another item?" function
 - Give option to select stores by neighborhood / borough
+
+
+
+Database
+- add listid and remove userid as primary key
+- setup defined connection using IP

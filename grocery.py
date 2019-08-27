@@ -181,24 +181,6 @@ def createlist(cursor, database, UserAccount, Store, Item):
         else:
             print("\n\nERROR: Invalid option selected. Please type 1 or 2 and then hit enter.")
             lookupMethod = createListMenu()
-
-    """ 
-        - Select store
-            - Query locations, then lookup
-        - Lookup item
-
-    - Prompt:
-        - Next item
-            - Repeat lookup item options
-        - End list
-            - Push sql commit query to user list
-    """
-    
-    # cursor.execute(f"INSERT INTO lists (userid, listname) VALUES {UserAccount.userid, listname}")
-    # database.commit()
-    # UserAccount.listcount += 1
-    # cursor.execut(f"INSERT INTO accounts (listcount) VALUES ({UserAccount.listcount})")
-    # database.commit()
         
 
 def priceLookup(cursor):
@@ -224,9 +206,6 @@ def priceLookup(cursor):
             unpack = itemResults[0]
             (itemid, itemname, price, unit, productSize, storeid) = unpack
 
-            # TODO: User selects which item
-            # --- 
-
             # ---------- Append Item object ---------- 
             Item.itemid = itemid
             Item.itemname = itemname
@@ -241,7 +220,6 @@ def priceLookup(cursor):
             # ---------- Lookup another item ----------
             nextItem = input("Would you like to select another item? [y/n]: ")
             
-            # TODO: FIX CONDITIONAL
             if (nextItem == "y") or (nextItem == "Y"):
                 lookup = False
             elif (nextItem == "n") or (nextItem == "N"):
