@@ -60,14 +60,14 @@ def storeLookup(cursor, Store):
         print("\n\n\nERROR: Store not found")
         lookupMethod = createListMenu()
     else:
-        optionSelect = True
+        selection = True
         (storeid, storename, address) = unpack
 
         # Store object
         Store.storeid = storeid
         Store.storename = storename
         Store.address = address
-    return optionSelect
+    return selection
 
 def itemLookup(cursor, Item):
     try:
@@ -88,7 +88,7 @@ def itemLookup(cursor, Item):
         # TODO: Return all objects not just one
         # Enumerate query results?
 
-        optionSelect = True
+        selection = True
         (itemid, itemname, price, unit, productSize, storeid) = unpack
 
         # TODO: User selects which item
@@ -101,13 +101,22 @@ def itemLookup(cursor, Item):
         Item.unit = unit
         Item.productSize = productSize
         Item.storeid = storeid
-    return optionSelect
+    return selection
+
+def addAnotherItem():
+    addItem = input("Would you like to search for another item? [y/n]: ")
+    if (addItem == "y") or (addItem == "Y"):
+        userSelection = False
+    else:
+        userSelection = True
+    return userSelection
 
 def createlist(cursor, database, UserAccount, Store, Item):
     """ Creates new list locally and in rdb """
     
     listname = input("Please enter a name for the list: ")
     userList = {}
+    dbList = ""
     lookupMethod = createListMenu()
     
     optionSelect = False
@@ -135,33 +144,39 @@ def createlist(cursor, database, UserAccount, Store, Item):
 
         # ---------- Query Item ----------
         elif lookupMethod == "2":
-            optionSelect = itemLookup(cursor, Item)
 
             userSelection = False
             while userSelection == False:
+                optionSelect = itemLookup(cursor, Item)
                 print("\nOptions: \n")
-                itemSelection = input(f'\n{Item.itemid} ---' + " " + Item.itemname + " @ " + str(Item.price) + " per " + Item.unit + "\nSelect an item to add to your list: ")
+                itemSelection = input(f'\n{Item.itemid} ---' + " " + Item.itemname + " @ " + str(Item.price) + " per " + Item.unit + "\nSelect an item to add to your list or type 'None': ")
                 
                 if itemSelection == "1": # Dummy statement --------------------------------
                     userList[f"{Item.itemname}"] = f"{Item.price} / {Item.unit}"
                     print(f"\n{Item.itemname} successfully added to {listname}!")
-
                     print(f"\n\nUser list = \n{userList}\n\n")
-                    userSelection = True
+                    dbList += str(Item.itemid) + ", "
+
+                    userSelection = addAnotherItem()
+
                 elif itemSelection == "None":
-                    pass
-                    # TODO: Add another?
-                    # TODO: Return to previous menu
+                    userSelection = addAnotherItem()
+
                 else:
                     print("\nERROR: Invalid selection")
 
                 print("\n\n")
 
-            # TODO: Would you like to add more items?
-            # ---
-
-            # TODO: Insert user's list details into list table
-            # ---
+            # TODO: INTEGRITYERROR:1062 (23000): DUPLICATE ENTRY ' ' FOR KEY 'PRIMARY'
+            # TODO: NEED TO ADD LISTID AND MAKE PRIMARY KEY ISNTEAD OF USERID. make userid foreign key
+            query = f"INSERT INTO lists (userid, listname, ListOfItemIDs, totalCost) VALUES ({UserAccount.userid}, '{listname}', '{dbList}', 0.00)"
+            cursor.execute(query)
+            database.commit()
+            
+            UserAccount.listCount += 1
+            query = f"UPDATE accounts SET listcount = ({UserAccount.listCount}) WHERE userid = {UserAccount.userid}"
+            cursor.execute(query)
+            database.commit()
 
         else:
             print("\n\nERROR: Invalid option selected. Please type 1 or 2 and then hit enter.")
