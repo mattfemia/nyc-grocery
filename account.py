@@ -8,45 +8,9 @@ import os
 from validate_email import validate_email
 from disposable_email_domains import blocklist
 from datetime import datetime
+from menu import *
+from main import *
 
-
-def loadStartMenu():
-    """Prompts the main menu options to load"""
-
-    print("\nWelcome to East Village groceries! \n")
-    print("\n1 --- Sign-in ---\n\nOR\n\n2 --- Sign-up ---\n\n")
-
-    startmenu = input("Please type in a number from the menu:")
-    print("\n\n")
-
-    while (startmenu != "1") & (startmenu != "2"):
-        print("\n\nERROR: Please select one of the current menu options \n")
-        print("\n1 --- Sign-in ---\n\nOR\n\n2 --- Sign-up ---\n\n")
-
-        startmenu = input("Please type in a number from the menu: ")
-
-    return startmenu
-
-def signup(cursor):
-    """ Setup user account with username, password, email"""
-    username = input("Please enter a username: ")
-    cursor.execute("SELECT username FROM accounts WHERE username = username")
-    result = cursor.fetchall()
-    if result:
-        print("Name is in database!")
-    else:
-        print("Name is not in database")
-
-    password = input("Please enter a password: ")
-    # if password doesn't meet requirements --> throw error, re-prompt
-    # else store in database
-    email = input("Please enter your email address: ")
-    # if email is invalid (formatting) --> throw error, re-prompt
-    # else store in database
-
-    print("\n\n" + username + "'s account successfully created!")
-
-    return username
 
 def signin(cursor, UserAccount):
     
@@ -81,7 +45,7 @@ def signin(cursor, UserAccount):
                 accountValid = True
             else:
                 print("\n\n----- ERROR: Account information is not valid. Please retry or signup for an account -----\n")
-                loadStartMenu()
+                startMenu()
             print("\n\n")
 
 class UserAccount:

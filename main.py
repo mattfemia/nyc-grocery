@@ -1,8 +1,9 @@
 
 import mysql.connector
 import os
-from grocery import *
+from account import *
 from mainmenu import *
+from menu import *
 from validate_email import validate_email
 from disposable_email_domains import blocklist
 
@@ -20,7 +21,7 @@ database = mysql.connector.connect(
 cursor = database.cursor()
 
 # ---------- Start menu ------------ #
-navigate = loadStartMenu()
+navigate = startMenu()
 
 currentUser = UserAccount()
 

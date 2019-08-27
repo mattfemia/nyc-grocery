@@ -1,7 +1,8 @@
-from grocery import *
+from account import *
+from menu import *
 import pandas as pd
-# TODO: Remove/change hours columns from STORES table
-# TODO: Add address column to STORES table
+
+
 # TODO: Create a list class
 # TODO: Transfer all functions into list class
 # TODO: Migrate files into separate list.py file?
@@ -23,22 +24,27 @@ class Item:
         self.storeid = 0
     # def displayItem():
 
-def mainMenu(username):
-    """ Prints the main menu options to the terminal """
-    print("\n\n\n\n\n~~ Welcome " + username + "! ~~ \n\nWhat would you like to do?")
-    print("1 --- Edit/view my grocery lists\n2 --- Create a new list\n3 --- Lookup item\n4 --- Show all available items\n5 --- Account settings\n6 --- Logout\n7 --- Quit\n")
-
-    navigate = input("Please enter a number in the menu: ")
-
-    while (navigate != "1") & (navigate != "2") & (navigate != "3") & (navigate != "4") & (navigate != "5") & (navigate != "6") & (navigate != "7"):
-        print("\n\nERROR: Please select one of the current menu options \n")
-        print("1 --- Edit/view my grocery lists\n2 --- Create a new list\n3 --- Lookup item\n4 --- Show all available items\n5 --- Account settings\n6 --- Logout\n7 --- Quit\n")
-
-        navigate = input("Please enter a number in the menu: ")
-
-    print("\n\n")
-
-    return navigate
+class GroceryList:
+    def __init__(self):
+        self.user = ""
+        self.listName = "Grocery List"
+        self.total = 0.00
+        self.numOfItems = 0
+        self.cart = []
+        
+    def addToCart(self, database, *listItems):
+        """ Appends the main groceryList data structure """
+        for item in listItems:
+            if item in database:
+                self.cart.append(item)
+                self.total += database[item]
+                self.numOfItems += 1
+                print(item + " = " + f'{database[item]}')
+            else:
+                print("Item not currently in database")
+    def printTotal(self):
+        """ Formats the total cost to currency """
+        print("Your total = $" + f'{round(self.total, 2)}')
 
 def storeLookup(cursor, Store):
     # ---------- QUERY store ----------
@@ -54,7 +60,7 @@ def storeLookup(cursor, Store):
         unpack = storeResults[0]
     except IndexError:
         print("\n\n\nERROR: Store not found")
-        lookupMethod = input("\n1 --- Select store location\n\n2 --- Lookup item\n")
+        lookupMethod = createListMenu()
     else:
         optionSelect = True
         (storeid, storename, address) = unpack
@@ -79,7 +85,7 @@ def itemLookup(cursor, Item):
         unpack = itemResults[0]
     except IndexError:
         print("ERROR: Item not found")
-        lookupMethod = input("\n1 --- Select store location\n\n2 --- Lookup item\n")
+        lookupMethod = createListMenu()
     else:
         # TODO: Return all objects not just one
         # Enumerate query results?
@@ -104,7 +110,7 @@ def createlist(cursor, database, UserAccount, Store, Item):
     
     listname = input("Please enter a name for the list: ")
     userList = {}
-    lookupMethod = input("\n1 --- Select store location\n\n2 --- Lookup item\n")
+    lookupMethod = createListMenu()
     
     optionSelect = False
     while optionSelect == False:
@@ -117,11 +123,13 @@ def createlist(cursor, database, UserAccount, Store, Item):
             userSelection = False
             while userSelection == False:
                 print("Options: \n")
-                storeSelect = input(f'{Store.storeid} ---' + " " + Store.storename + " @ " + Store.address + "\nSelect a store number: ")
+                storeSelect = input(f'{Store.storeid} ---' + " " + Store.storename + " @ " + Store.address + "\nSelect a store number or type 'None': ")
                 
                 if storeSelect == "1": # Dummy statement --------------------------------
                     print("Success")
                     userSelection = True
+                elif storeSelect == "None":
+                    lookupMethod = createListMenu()
                 else:
                     print("\nERROR: Invalid selection")
 
@@ -159,9 +167,7 @@ def createlist(cursor, database, UserAccount, Store, Item):
 
         else:
             print("\n\nERROR: Invalid option selected. Please type 1 or 2 and then hit enter.")
-            lookupMethod = input("\n1 --- Select store location\n\n2 --- Lookup item\n")
-            
-    #TODO: Create lookup item function and embed inside of this function
+            lookupMethod = createListMenu()
 
     """ 
         - Select store
@@ -238,6 +244,5 @@ def showAllItems(cursor, Item):
     # TODO: Remove index
     # ---
 
-    print(df)    
-
+    print(df) 
             
