@@ -1,11 +1,13 @@
 
 import mysql.connector
 import os
-from account import *
-from mainmenu import *
-from menu import *
 from validate_email import validate_email
 from disposable_email_domains import blocklist
+
+# Local file dependencies
+from account import *
+from grocery import *
+from menu import *
 
 # ---------- PROGRAM BEGINS HERE ---------- #
 
@@ -22,7 +24,6 @@ cursor = database.cursor()
 
 # ---------- Start menu ------------ #
 navigate = startMenu()
-
 currentUser = UserAccount()
 
 # signin or signup
@@ -31,8 +32,6 @@ if navigate == "1":
 elif navigate == "2":
     newUserName = input("Please enter a username: ") 
     currentUser.createAccount(newUserName, cursor, database, currentUser)
-
-print(currentUser.userid)
 
 # ---------- Main Menu ---------- #
 navigate = mainMenu(currentUser.username)
@@ -44,12 +43,12 @@ if navigate == "1":
 elif navigate == "2":
     createlist(cursor, database, currentUser, currentStore, currentItem)
 elif navigate == "3":
-    priceLookup(cursor)
+    priceLookup(cursor, currentUser)
 elif navigate == "4":
     showAllItems(cursor, currentItem)
 elif navigate == "5":
     print("Account settings\n")
 elif navigate == "6":
-    print("Sign-out")
+    navigate = startMenu()
 elif navigate == "7":
-    print("Quit")
+    print("Exiting program ...\n\n\n\n")

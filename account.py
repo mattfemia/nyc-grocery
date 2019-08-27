@@ -1,4 +1,3 @@
-#TODO: Mainmenu functionality
 #TODO: Remove newUserName from the signup options
 
 #!!!!! SET ENVIRONMENT VARIABLE DATABASE_PW OR PROG WILL NOT RUN !!!!!
@@ -8,45 +7,10 @@ import os
 from validate_email import validate_email
 from disposable_email_domains import blocklist
 from datetime import datetime
+
 from menu import *
-from main import *
+from grocery import *
 
-
-def signin(cursor, UserAccount):
-    
-    accountValid = False
-    while accountValid == False:
-        try:
-            username = input("Username: ")
-            password = input("Password: ")
-            print(username)
-            username = f"{username}"
-            print(username)
-            cursor.execute(f"SELECT * FROM accounts WHERE username = '{username}'")
-        except mysql.connector.errors.ProgrammingError:
-            print("ERROR: Account information is not valid")
-        else:
-            result = cursor.fetchall() # list
-            if result:
-                unpack = result[0] # tuple
-                (userid, user, first, last, email, pw, phone, listcount, regdate) = unpack # unpack tuple
-                UserAccount.userid = userid
-                UserAccount.username = user
-                UserAccount.firstname = first
-                UserAccount.lastname = last
-                UserAccount.email = email
-                if pw != password:
-                    print("\n\n----- ERROR: Account information is not valid. Please retry or signup for an account -----\n")
-                UserAccount.password = pw
-                UserAccount.phone = phone
-                UserAccount.listCount = listcount
-                UserAccount.registrationDate = regdate
-                print("Success!")
-                accountValid = True
-            else:
-                print("\n\n----- ERROR: Account information is not valid. Please retry or signup for an account -----\n")
-                startMenu()
-            print("\n\n")
 
 class UserAccount:
     def __init__(self):
@@ -110,10 +74,9 @@ class UserAccount:
         """ Requests first and last name, plus phone number for user. User is given option to
          update these fields or not because they are not required in the database query """
 
-        #TODO: FIX CONDITIONAL!!
         editDetails = input("\n\nWould you like to edit your account details [y/n]: ")
         print(editDetails)
-        if (editDetails == "y" or "Y" or "yes" or "Yes"):    
+        if (editDetails == "y") or (editDetails == "Y") or (editDetails == "yes") or (editDetails == "Yes"):    
             firstName = input("First name: ")
             UserAccount.firstname = firstName
             lastName = input("Last name: ")
@@ -129,6 +92,8 @@ class UserAccount:
                 else:
                     UserAccount.phone = phoneNumber
                     phone = True
+        else:
+            UserAccount.phone = 0
         currentDate = datetime.today().strftime('%Y-%m-%d')
         UserAccount.registrationDate = currentDate
 
@@ -160,7 +125,6 @@ class UserAccount:
         # insertUsername = "INSERT INTO accounts (username) VALUES (%s)"
         # username = username
 
-
 class User:
     def __init__(self):
         self.user = self
@@ -185,25 +149,41 @@ class User:
                     print("Error: list could not be saved. Check to make sure it exists")
             else:
                 print("Error: List could not be saved.")
+
+
+def signin(cursor, UserAccount):
     
-class GroceryList:
-    def __init__(self):
-        self.user = ""
-        self.listName = "Grocery List"
-        self.total = 0.00
-        self.numOfItems = 0
-        self.cart = []
-        
-    def addToCart(self, database, *listItems):
-        """ Appends the main groceryList data structure """
-        for item in listItems:
-            if item in database:
-                self.cart.append(item)
-                self.total += database[item]
-                self.numOfItems += 1
-                print(item + " = " + f'{database[item]}')
+    accountValid = False
+    while accountValid == False:
+        try:
+            username = input("Username: ")
+            password = input("Password: ")
+            print(username)
+            username = f"{username}"
+            print(username)
+            cursor.execute(f"SELECT * FROM accounts WHERE username = '{username}'")
+        except mysql.connector.errors.ProgrammingError:
+            print("ERROR: Account information is not valid")
+        else:
+            result = cursor.fetchall() # list
+            if result:
+                unpack = result[0] # tuple
+                (userid, user, first, last, email, pw, phone, listcount, regdate) = unpack # unpack tuple
+                UserAccount.userid = userid
+                UserAccount.username = user
+                UserAccount.firstname = first
+                UserAccount.lastname = last
+                UserAccount.email = email
+                if pw != password:
+                    print("\n\n----- ERROR: Account information is not valid. Please retry or signup for an account -----")
+                else:
+                    UserAccount.password = pw
+                    UserAccount.phone = phone
+                    UserAccount.listCount = listcount
+                    UserAccount.registrationDate = regdate
+                    print("Success!")
+                    accountValid = True
             else:
-                print("Item not currently in database")
-    def printTotal(self):
-        """ Formats the total cost to currency """
-        print("Your total = $" + f'{round(self.total, 2)}')
+                print("\n\n----- ERROR: Account information is not valid. Please retry or signup for an account -----\n")
+                startMenu()
+            print("\n\n")

@@ -2,8 +2,6 @@ from account import *
 from menu import *
 import pandas as pd
 
-
-# TODO: Create a list class
 # TODO: Transfer all functions into list class
 # TODO: Migrate files into separate list.py file?
 
@@ -188,7 +186,7 @@ def createlist(cursor, database, UserAccount, Store, Item):
     # database.commit()
         
 
-def priceLookup(cursor):
+def priceLookup(cursor, UserAccount):
     """ If grocery item is in the 'database', print the price of the item """
     lookup = False
     while lookup == False:
@@ -229,8 +227,11 @@ def priceLookup(cursor):
             nextItem = input("Would you like to select another item? [y/n]: ")
             
             # TODO: FIX CONDITIONAL
-            if nextItem != "y" or "Y" or "yes" or "Yes":
+            if (nextItem == "y") or (nextItem == "Y"):
+                lookup = False
+            elif (nextItem == "n") or (nextItem == "N"):
                 lookup = True
+                mainMenu(UserAccount.username)
 
 
 def showAllItems(cursor, Item):

@@ -3,7 +3,7 @@ from account import *
 def startMenu():
     """Prompts the main menu options to load"""
 
-    print("\nWelcome to East Village groceries! \n")
+    print("\nWelcome to NYC groceries! \n")
     print("\n1 --- Sign-in ---\n\nOR\n\n2 --- Sign-up ---\n\n")
 
     startmenu = input("Please type in a number from the menu:")
