@@ -89,7 +89,6 @@ def addAnotherItem():
     else:
         userSelection = True
     return userSelection
-        
 
 def priceLookup(cursor):
     """ If grocery item is in the 'database', print the price of the item """
@@ -141,7 +140,6 @@ def showAllItems(cursor, Item):
     itemResults = cursor.fetchall()
 
     df = pd.DataFrame(itemResults, columns=['Item ID', 'Item', 'Store ID', 'Category', 'Subcategory', 'Price', 'Unit', 'Size'])    
-
     df.set_index('Item ID', inplace=True, drop=True)
 
     print(df) 

@@ -98,18 +98,57 @@ def viewLists(cursor, UserAccount):
         currentList.listname = entry[2]
         currentList.items = entry[3]
 
-    df = pd.DataFrame(columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
-    for item in currentList.items:
-        if (item != ",") and (item != " "):
-            
-            currentItem.itemid = item
-            query = f"SELECT itemid, itemname, storename, category, price, unit FROM items INNER JOIN stores ON items.storeid = stores.storeid WHERE itemid = '{currentItem.itemid}'"
-            cursor.execute(query)
-            result = cursor.fetchall()
-            df2 = pd.DataFrame(result, columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
-            df = pd.concat([df, df2])
+        df = pd.DataFrame(columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
+        for item in currentList.items:
+            if (item != ",") and (item != " "):
+                
+                currentItem.itemid = item
+                query = f"SELECT itemid, itemname, storename, category, price, unit FROM items INNER JOIN stores ON items.storeid = stores.storeid WHERE itemid = '{currentItem.itemid}'"
+                cursor.execute(query)
+                result = cursor.fetchall()
+                df2 = pd.DataFrame(result, columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
+                df = pd.concat([df, df2])
 
-    df.set_index('Item ID', inplace=True, drop=True)
+        df.set_index('Item ID', inplace=True, drop=True)
 
-    
-    print(f"{currentList.listname}: \n{df}")
+        
+        print(f"\n\nList ID = {currentList.listid}\nList name = {currentList.listname} \n{df}")
+
+    # -------- editList function ----------
+
+    edit = input("\n\nWould you like to edit your lists? [y/n]: ")
+    if (edit == "y") or (edit == "Y"):
+        listSelect = input("Please enter the List ID shown above the list you would like to edit: ")
+
+        query = f"SELECT userid, listid, listname, ListOfItemIDs FROM lists WHERE listid = {listSelect}"
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+        currentList = GroceryList()
+        currentItem = Item()
+
+        currentList.listid = entry[1]
+        currentList.listname = entry[2]
+        currentList.items = entry[3]
+
+        df = pd.DataFrame(columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
+        for item in currentList.items:
+            if (item != ",") and (item != " "):
+                
+                currentItem.itemid = item
+                query = f"SELECT itemid, itemname, storename, category, price, unit FROM items INNER JOIN stores ON items.storeid = stores.storeid WHERE itemid = '{currentItem.itemid}'"
+                cursor.execute(query)
+                result = cursor.fetchall()
+                df2 = pd.DataFrame(result, columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
+                df = pd.concat([df, df2])
+
+        df.set_index('Item ID', inplace=True, drop=True)
+
+        
+        print(f"\nList ID = {currentList.listid}\nList name = {currentList.listname} \n{df}")
+        
+        # ---- EditListMenu Fxn ---- 
+        edited = False
+        while edited == False:
+            print("\n1 --- Drop item from list\n2 --- Change list name\n3 --- Delete list")
+            editListMenu = input("Please type in a number from the menu: ")
