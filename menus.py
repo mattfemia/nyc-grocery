@@ -1,5 +1,3 @@
-from account import *
-
 def startMenu():
     """Prompts the main menu options to load"""
 
@@ -19,8 +17,8 @@ def startMenu():
 
 def mainMenu(username):
     """ Prints the main menu options to the terminal """
-
-    print("\n\n\n\n\n~~ Welcome " + username + "! ~~ \n\nWhat would you like to do?")
+    
+    print("\n\n\n\n~~ Welcome " + username + "! ~~ \n\nWhat would you like to do?")
     print("1 --- Edit/view my grocery lists\n2 --- Create a new list\n3 --- Lookup item\n4 --- Show all available items\n5 --- Account settings\n6 --- Logout\n7 --- Quit\n")
 
     navigate = input("Please enter a number in the menu: ")

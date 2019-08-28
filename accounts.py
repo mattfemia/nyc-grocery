@@ -8,9 +8,33 @@ from validate_email import validate_email
 from disposable_email_domains import blocklist
 from datetime import datetime
 
-from menu import *
-from grocery import *
+from menus import *
+from items import *
 
+class User:
+    def __init__(self):
+        self.user = self
+        self.location = "East Village" # TODO: Update this to apply to all locations
+        self.lists = []
+
+    def setLocation(self, newLocation, locations):
+        """ Defines user's location for stores """
+        if newLocation in locations:
+            self.location = newLocation
+            print("User location updated successfully.")
+        else:
+            print("Sorry, this location is not currently setup in our database. \nPlease try a different location")
+
+    def addList(self, newList):
+        """ Saves current list to user's list database """
+        def saveList(shoppingList):
+            if type(shoppingList) == GroceryList:
+                try:
+                    lists.append(newList)
+                except:
+                    print("Error: list could not be saved. Check to make sure it exists")
+            else:
+                print("Error: List could not be saved.")
 
 class UserAccount:
     def __init__(self):
@@ -125,30 +149,6 @@ class UserAccount:
         # insertUsername = "INSERT INTO accounts (username) VALUES (%s)"
         # username = username
 
-class User:
-    def __init__(self):
-        self.user = self
-        self.location = "East Village" # TODO: Update this to apply to all locations
-        self.lists = []
-
-    def setLocation(self, newLocation, locations):
-        """ Defines user's location for stores """
-        if newLocation in locations:
-            self.location = newLocation
-            print("User location updated successfully.")
-        else:
-            print("Sorry, this location is not currently setup in our database. \nPlease try a different location")
-
-    def addList(self, newList):
-        """ Saves current list to user's list database """
-        def saveList(shoppingList):
-            if type(shoppingList) == GroceryList:
-                try:
-                    lists.append(newList)
-                except:
-                    print("Error: list could not be saved. Check to make sure it exists")
-            else:
-                print("Error: List could not be saved.")
 
 
 def signin(cursor, UserAccount):

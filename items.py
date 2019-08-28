@@ -1,5 +1,5 @@
-from account import *
-from menu import *
+from accounts import *
+from menus import *
 import pandas as pd
 
 # TODO: Transfer all functions into list class
@@ -18,17 +18,10 @@ class Item:
         self.itemname = ""
         self.price = 0.00
         self.unit = ""
+        self.category = ""
         self.productSize = ""
         self.storeid = 0
     # def displayItem():
-
-class GroceryList:
-    def __init__(self):
-        self.user = ""
-        self.listName = "Grocery List"
-        self.total = 0.00
-        self.numOfItems = 0
-        self.cart = []
 
 def storeLookup(cursor, Store):
     # ---------- QUERY store ----------
@@ -96,77 +89,6 @@ def addAnotherItem():
     else:
         userSelection = True
     return userSelection
-
-def createlist(cursor, database, UserAccount, Store, Item):
-    """ Creates new list locally and in rdb """
-    
-    listname = input("Please enter a name for the list: ")
-    userList = {}
-    dbList = ""
-    lookupMethod = createListMenu()
-    
-    optionSelect = False
-    while optionSelect == False:
-        if lookupMethod == "1":
-
-            #TODO: GIVE OPTION TO SELECT STORE BY NEIGHBORHOOD, LIST ALL STORES, ETC (query location table instead)
-
-            optionSelect = storeLookup(cursor, Store)
-
-            userSelection = False
-            while userSelection == False:
-                print("Options: \n")
-                storeSelect = input(f'{Store.storeid} ---' + " " + Store.storename + " @ " + Store.address + "\nSelect a store number or type 'None': ")
-                
-                if storeSelect == "1": # Dummy statement --------------------------------
-                    print("Success")
-                    userSelection = True
-                elif storeSelect == "None":
-                    lookupMethod = createListMenu()
-                else:
-                    print("\nERROR: Invalid selection")
-
-                print("\n\n")
-
-        # ---------- Query Item ----------
-        elif lookupMethod == "2":
-
-            userSelection = False
-            while userSelection == False:
-                optionSelect = itemLookup(cursor, Item)
-                print("\nOptions: \n")
-                itemSelection = input(f'\n{Item.itemid} ---' + " " + Item.itemname + " @ " + str(Item.price) + " per " + Item.unit + "\nSelect an item to add to your list or type 'None': ")
-                
-                if itemSelection == "1": # Dummy statement --------------------------------
-                    userList[f"{Item.itemname}"] = f"{Item.price} / {Item.unit}"
-                    print(f"\n{Item.itemname} successfully added to {listname}!")
-                    print(f"\n\nUser list = \n{userList}\n\n")
-                    dbList += str(Item.itemid) + ", "
-
-                    userSelection = addAnotherItem()
-
-                elif itemSelection == "None":
-                    userSelection = addAnotherItem()
-
-                else:
-                    print("\nERROR: Invalid selection")
-
-                print("\n\n")
-
-            # TODO: INTEGRITYERROR:1062 (23000): DUPLICATE ENTRY ' ' FOR KEY 'PRIMARY'
-            # TODO: NEED TO ADD LISTID AND MAKE PRIMARY KEY ISNTEAD OF USERID. make userid foreign key
-            query = f"INSERT INTO lists (userid, listname, ListOfItemIDs, totalCost) VALUES ({UserAccount.userid}, '{listname}', '{dbList}', 0.00)"
-            cursor.execute(query)
-            database.commit()
-            
-            UserAccount.listCount += 1
-            query = f"UPDATE accounts SET listcount = ({UserAccount.listCount}) WHERE userid = {UserAccount.userid}"
-            cursor.execute(query)
-            database.commit()
-
-        else:
-            print("\n\nERROR: Invalid option selected. Please type 1 or 2 and then hit enter.")
-            lookupMethod = createListMenu()
         
 
 def priceLookup(cursor):
@@ -220,8 +142,6 @@ def showAllItems(cursor, Item):
 
     df = pd.DataFrame(itemResults, columns=['Item ID', 'Item', 'Store ID', 'Category', 'Subcategory', 'Price', 'Unit', 'Size'])    
 
-    # TODO: Remove index
-    # ---
+    df.set_index('Item ID', inplace=True, drop=True)
 
     print(df) 
-            

@@ -5,9 +5,10 @@ from validate_email import validate_email
 from disposable_email_domains import blocklist
 
 # Local file dependencies
-from account import *
-from grocery import *
-from menu import *
+from accounts import *
+from items import *
+from menus import *
+from lists import *
 
 # ---------- PROGRAM BEGINS HERE ---------- #
 
@@ -40,9 +41,9 @@ while exitProgram == False:
     navigate = mainMenu(currentUser.username)
     currentStore = Store()
     currentItem = Item()
-    
+
     if navigate == "1":
-        print("Edit/view my grocery lists\n")
+        viewLists(cursor, currentUser)
     elif navigate == "2":
         createlist(cursor, database, currentUser, currentStore, currentItem)
     elif navigate == "3":
