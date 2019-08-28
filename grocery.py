@@ -232,7 +232,7 @@ def showAllItems(cursor, Item):
     cursor.execute(query)
     itemResults = cursor.fetchall()
 
-    df = pd.DataFrame(itemResults, columns=['Item ID', 'Item', 'Store ID', 'Category', 'Price', 'Unit', 'Size', 'Subcategory'])    
+    df = pd.DataFrame(itemResults, columns=['Item ID', 'Item', 'Store ID', 'Category', 'Subcategory', 'Price', 'Unit', 'Size'])    
 
     # TODO: Remove index
     # ---
