@@ -29,20 +29,6 @@ class GroceryList:
         self.total = 0.00
         self.numOfItems = 0
         self.cart = []
-        
-    def addToCart(self, database, *listItems):
-        """ Appends the main groceryList data structure """
-        for item in listItems:
-            if item in database:
-                self.cart.append(item)
-                self.total += database[item]
-                self.numOfItems += 1
-                print(item + " = " + f'{database[item]}')
-            else:
-                print("Item not currently in database")
-    def printTotal(self):
-        """ Formats the total cost to currency """
-        print("Your total = $" + f'{round(self.total, 2)}')
 
 def storeLookup(cursor, Store):
     # ---------- QUERY store ----------
