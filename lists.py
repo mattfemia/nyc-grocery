@@ -80,7 +80,7 @@ def createlist(cursor, database, UserAccount, Store, Item):
             print("\n\nERROR: Invalid option selected. Please type 1 or 2 and then hit enter.")
             lookupMethod = createListMenu()
 
-def viewLists(cursor, UserAccount):
+def viewLists(cursor, database, UserAccount):
     """ Queries all itemids in each user's list and stitches together itemid, itemname, storename, category, 
     price, unit into a formatted structure """
 
@@ -118,6 +118,9 @@ def viewLists(cursor, UserAccount):
 
     edit = input("\n\nWould you like to edit your lists? [y/n]: ")
     if (edit == "y") or (edit == "Y"):
+
+        # TODO: Disable user from accessing lists outside of their own (currently can type any list id and retrieve it)
+
         listSelect = input("Please enter the List ID shown above the list you would like to edit: ")
 
         query = f"SELECT userid, listid, listname, ListOfItemIDs FROM lists WHERE listid = {listSelect}"
@@ -127,12 +130,15 @@ def viewLists(cursor, UserAccount):
         currentList = GroceryList()
         currentItem = Item()
 
-        currentList.listid = entry[1]
-        currentList.listname = entry[2]
-        currentList.items = entry[3]
+        for entry in result:
+            currentList.listid = entry[1]
+            currentList.listname = entry[2]
+            currentList.items = entry[3]
 
         df = pd.DataFrame(columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
         for item in currentList.items:
+
+            # TODO: Fix this conditional to account for numbers with digits > 1 (10, 23, 123). Need to change list item structure
             if (item != ",") and (item != " "):
                 
                 currentItem.itemid = item
@@ -143,12 +149,49 @@ def viewLists(cursor, UserAccount):
                 df = pd.concat([df, df2])
 
         df.set_index('Item ID', inplace=True, drop=True)
-
-        
-        print(f"\nList ID = {currentList.listid}\nList name = {currentList.listname} \n{df}")
+        print(f"\n\n\n\nList ID = {currentList.listid}\nList name = {currentList.listname} \n{df}")
         
         # ---- EditListMenu Fxn ---- 
         edited = False
         while edited == False:
-            print("\n1 --- Drop item from list\n2 --- Change list name\n3 --- Delete list")
+            print("\n\n\n----- Edit list ------\n\n1 --- Remove item from list\n2 --- Change list name\n3 --- Delete list\n4 --- Back to main menu\n")
             editListMenu = input("Please type in a number from the menu: ")
+            if editListMenu == "1":
+                removeListItem(cursor, database, currentList)
+            elif editListMenu == "2":
+                updateListName(cursor, database, currentList)
+            elif editListMenu == "3":
+                pass
+            elif editListMenu == "4":
+                edited = True
+            else:
+                print("\n\nERROR: Please select a number from the menu")
+
+def removeListItem(cursor, database, List):
+    """ Recursive function to remove as many items from user's list as requested by user """
+
+    dropItem = input("Select the item id for the item you would like to remove: ")
+    print(List.items)
+    List.items = List.items.strip(f'{dropItem},')
+    print(List.items)
+    query = f"UPDATE lists SET listOfItemIDs = '{List.items}' WHERE listid = '{List.listid}'"
+    cursor.execute(query)
+    database.commit()
+
+    removeAnotherItem = input("Would you like to remove another item? [y/n]: ")
+    if (removeAnotherItem == "y") or (removeAnotherItem == "Y"):
+        removeListItem(cursor, database, List, UserAccount)
+    else:
+        pass
+
+def updateListName(cursor, database, List):
+    """ Updates the listname variable locally and in the database """
+
+    print(f"Current list name = {List.listname}\n")
+    newListName = input("Please enter the new list name: ")
+    List.listname = newListName
+    query = f"UPDATE lists SET listname = '{List.listname}' WHERE listid = '{List.listid}'"
+    cursor.execute(query)
+    database.commit()
+    print(f"\n\nList name successfully changed to {List.listname}\n")
+

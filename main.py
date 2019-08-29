@@ -43,7 +43,7 @@ while exitProgram == False:
     currentItem = Item()
 
     if navigate == "1":
-        viewLists(cursor, currentUser)
+        viewLists(cursor, database, currentUser)
     elif navigate == "2":
         createlist(cursor, database, currentUser, currentStore, currentItem)
     elif navigate == "3":
