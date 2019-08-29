@@ -245,7 +245,7 @@ def resetPassword(cursor, database, UserAccount):
             retype = input("Please retype new password: ")
             if newPassword == retype:
                 matchingPasswords = True
-                userAccount.password = newPassword
+                UserAccount.password = newPassword
                 try:
                     query = f"UPDATE accounts SET password = '{UserAccount.password}' WHERE userid = '{UserAccount.userid}'"
                     cursor.execute(query)
@@ -287,7 +287,7 @@ def updateName(cursor, database, UserAccount):
     first = input(f"\nFirst name: ")
     UserAccount.firstname = first
 
-    last = input(f"\Last name: ")
+    last = input(f"Last name: ")
     UserAccount.lastname = last
 
     try:
@@ -316,7 +316,7 @@ def deleteAccount(cursor, database, UserAccount):
         if passwordChallenge == UserAccount.password:
             confirmDelete = input("\nAre you sure you want to delete your account? [y/n]: ")
             if (confirmDelete == "y") or (confirmDelete == "Y"):
-                query = f"DELETE FROM accounts, lists WHERE userid = {UserAccount.userid}"
+                query = f"DELETE a, l FROM accounts as a INNER JOIN lists as l on a.userid = l.userid WHERE a.userid = '{UserAccount.userid}'"
                 cursor.execute(query)
                 database.commit()
 
@@ -330,7 +330,7 @@ def deleteAccount(cursor, database, UserAccount):
                 UserAccount.registrationDate = ""
                 UserAccount.userid = 0
 
-                print("Account successfully deleted.\n\nExiting program...")
+                print("Account successfully deleted.\n\n\nExiting program...\n\n")
                 challenge = True
                 exit()
             elif (confirmDelete == "n") or (confirmDelete == "N"):
