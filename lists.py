@@ -161,7 +161,7 @@ def viewLists(cursor, database, UserAccount):
             elif editListMenu == "2":
                 updateListName(cursor, database, currentList)
             elif editListMenu == "3":
-                pass
+                edited = deleteList(cursor, database, currentList)
             elif editListMenu == "4":
                 edited = True
             else:
@@ -194,4 +194,22 @@ def updateListName(cursor, database, List):
     cursor.execute(query)
     database.commit()
     print(f"\n\nList name successfully changed to {List.listname}\n")
+
+def deleteList(cursor, database, List):
+    """ Removes list instance locally and in database """
+
+    selected = False
+    while selected == False:
+        deleteList = input(f"Are you sure you want to delete {List.listname}? [y/n]: ")
+        if (deleteList == "y") or (deleteList == "Y"):
+            query = f"DELETE FROM lists WHERE listid = {List.listid}"
+            cursor.execute(query)
+            database.commit()
+            selected = True
+            return True
+        elif (deleteList == "n") or (deleteList == "N"):
+            selected = True
+            return False
+        else:
+            print("\nERROR: incorrect selection. Type y or n to confirm or deny removal\n")
 
