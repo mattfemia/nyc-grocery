@@ -99,7 +99,6 @@ class UserAccount:
          update these fields or not because they are not required in the database query """
 
         editDetails = input("\n\nWould you like to edit your account details [y/n]: ")
-        print(editDetails)
         if (editDetails == "y") or (editDetails == "Y") or (editDetails == "yes") or (editDetails == "Yes"):    
             firstName = input("First name: ")
             UserAccount.firstname = firstName
@@ -132,10 +131,10 @@ class UserAccount:
         UserAccount.userDetails(UserAccount)
         print(UserAccount.registrationDate)
 
-        sqlcommand = f"INSERT INTO accounts (username, firstname, lastname, email, password, \
+        query = f"INSERT INTO accounts (username, firstname, lastname, email, password, \
             phone, listcount, registrationdate) VALUES \
                 {UserAccount.username, UserAccount.firstname, UserAccount.lastname, UserAccount.email, UserAccount.password, int(UserAccount.phone), UserAccount.listCount, str(UserAccount.registrationDate)}"
-        cursor.execute(sqlcommand)
+        cursor.execute(query)
         database.commit()
 
         cursor.execute(f"SELECT userid FROM accounts WHERE username = '{UserAccount.username}'")
@@ -150,9 +149,11 @@ class UserAccount:
         # username = username
 
 
-
 def signin(cursor, UserAccount):
-    
+    """ Queries database against the credentials provided and either validates or
+    denies user access to login. Upon login, UserAccount object is created and
+    populated with all corresponding User variables """
+
     accountValid = False
     while accountValid == False:
         try:
@@ -165,10 +166,10 @@ def signin(cursor, UserAccount):
         except mysql.connector.errors.ProgrammingError:
             print("ERROR: Account information is not valid")
         else:
-            result = cursor.fetchall() # list
+            result = cursor.fetchall() 
             if result:
-                unpack = result[0] # tuple
-                (userid, user, first, last, email, pw, phone, listcount, regdate) = unpack # unpack tuple
+                unpack = result[0] 
+                (userid, user, first, last, email, pw, phone, listcount, regdate) = unpack
                 UserAccount.userid = userid
                 UserAccount.username = user
                 UserAccount.firstname = first
@@ -187,3 +188,154 @@ def signin(cursor, UserAccount):
                 print("\n\n----- ERROR: Account information is not valid. Please retry or signup for an account -----\n")
                 startMenu()
             print("\n\n")
+
+def accountSettings(cursor, database, UserAccount):
+    """ Menuing function that lists a collection of UserAccount CRUD functions 
+    -- aside from creating an account """
+    
+    menuSelect = False
+    while menuSelect == False:
+        option = accountMenu()    
+        
+        if option == "1":
+            updateUsername(cursor, database, UserAccount)
+        elif option == "2":
+            resetPassword(cursor, database, UserAccount)
+        elif option == "3":
+            updateEmail(cursor, database, UserAccount)
+        elif option == "4":
+            updateName(cursor, database, UserAccount)
+        elif option == "5":
+            deleteAccount(cursor, database, UserAccount)
+        elif option == "6":
+            menuSelect = True
+        else:
+            print("\nERROR: Please enter one of the numbers from the menu\n\n")
+
+def updateUsername(cursor, database, UserAccount):
+    """ Updates username locally and in database """
+
+    newUserName = input("\nPlease enter new username: ")
+    retype = input("\nPlease retype new username: ")
+    confirm = False
+    while confirm == False:
+        if newUserName == retype:
+            try:
+                UserAccount.username = newUserName
+                query = f"UPDATE accounts SET username = '{UserAccount.username}' WHERE userid = '{UserAccount.userid}'"
+                cursor.execute(query)
+            except:
+                print("ERROR: Username could not be updated please try again later")
+            else:
+                database.commit()
+                print(f"\n\nUsername successfully updated to: {UserAccount.username}\n")
+                confirm = True
+        else:
+            print("ERROR: Usernames do not match. Please try again")
+
+def resetPassword(cursor, database, UserAccount):
+    """ Prompts user to verify current password and then select a new password. Result is
+    updated locally and in database """
+
+    oldPassword = input("\nPlease enter old password: ")
+    if oldPassword == UserAccount.password:
+        matchingPasswords = False
+        while matchingPasswords == False:
+            newPassword = input("\nPlease enter new password: ")
+            retype = input("Please retype new password: ")
+            if newPassword == retype:
+                matchingPasswords = True
+                userAccount.password = newPassword
+                try:
+                    query = f"UPDATE accounts SET password = '{UserAccount.password}' WHERE userid = '{UserAccount.userid}'"
+                    cursor.execute(query)
+                except:
+                    print("\nERROR: Password could not be updated. Please try again later.\n")
+                else:
+                    database.commit()
+                    print("\n\nPassword successfully updated.")
+            else:
+                print("\nError passwords do not match")
+                tryAgain = input("Try again? [y/n]")
+                if (tryAgain == "y") or (tryAgain == "Y"):
+                    matchingPasswords = False
+                elif (tryAgain == "n") or (tryAgain == "N"):
+                    matchingPasswords = True
+                else:
+                    print("\nERROR: Please enter y or n")
+    else:
+        print("ERROR: incorrect password submitted")   
+        
+def updateEmail(cursor, database, UserAccount):
+    """ Allows user to update field of choice. UserAccount detail is chosen
+    by the userField argument """
+
+    newEmail = input(f"\nPlease enter the new email address: ")
+    UserAccount.email = newEmail
+    try:
+        query = f"UPDATE accounts SET email = '{UserAccount.email}' WHERE userid = '{UserAccount.userid}'"
+        cursor.execute(query)
+    except:
+        print(f"\nERROR: Email address could not be updated. Please try again later")
+    else:
+        database.commit()
+        print(f"\n\nEmail address updated successfuly.")
+
+def updateName(cursor, database, UserAccount):
+    """ Updates first and last name UserAccount fields """
+
+    first = input(f"\nFirst name: ")
+    UserAccount.firstname = first
+
+    last = input(f"\Last name: ")
+    UserAccount.lastname = last
+
+    try:
+        query = f"UPDATE accounts SET firstname = '{UserAccount.firstname}' WHERE userid = '{UserAccount.userid}'"
+        cursor.execute(query)
+    except:
+        print(f"\nERROR: Name could not be updated. Please try again later")
+    else:
+        database.commit()
+
+    try:
+        query = f"UPDATE accounts SET lastname = '{UserAccount.lastname}' WHERE userid = '{UserAccount.userid}'"
+        cursor.execute(query)
+    except:
+        print(f"\nERROR: Name could not be updated. Please try again later")
+    else:
+        database.commit()
+        print(f"\n\nName updated successfuly.")
+
+def deleteAccount(cursor, database, UserAccount):
+    """ Deletes account locally and in database. Then ends the program """
+
+    challenge = False
+    while challenge == False:
+        passwordChallenge = input("\nPlease enter your password: ")
+        if passwordChallenge == UserAccount.password:
+            confirmDelete = input("\nAre you sure you want to delete your account? [y/n]: ")
+            if (confirmDelete == "y") or (confirmDelete == "Y"):
+                query = f"DELETE FROM accounts, lists WHERE userid = {UserAccount.userid}"
+                cursor.execute(query)
+                database.commit()
+
+                UserAccount.username = ""
+                UserAccount.password = ""
+                UserAccount.firstname = ""
+                UserAccount.lastname = ""
+                UserAccount.email = ""
+                UserAccount.phone = ""
+                UserAccount.listCount = 0
+                UserAccount.registrationDate = ""
+                UserAccount.userid = 0
+
+                print("Account successfully deleted.\n\nExiting program...")
+                challenge = True
+                exit()
+            elif (confirmDelete == "n") or (confirmDelete == "N"):
+                challenge = True
+            else:
+                print("\nERROR: Please type y or n")
+        else:
+            print("\nERROR: Passwords don't match")

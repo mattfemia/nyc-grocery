@@ -38,3 +38,11 @@ def createListMenu():
 
     lookupMethod = input("\n1 --- Select store location\n\n2 --- Lookup item\n")
     return lookupMethod
+
+def accountMenu():
+    """ Displays options for account management """
+
+    print("\n\n# --- User account settings --- #\n\n1 --- Change username\n2 --- Reset password\n3 --- Update email address\n4 --- Update name\n5 --- Delete Account\n6 --- Back to main menu")
+    option = input("Please select an option: ")
+
+    return option

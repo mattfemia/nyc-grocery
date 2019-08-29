@@ -35,7 +35,6 @@ elif navigate == "2":
     currentUser.createAccount(newUserName, cursor, database, currentUser)
 
 # ---------- Main Menu ---------- #
-
 exitProgram = False
 while exitProgram == False:
     navigate = mainMenu(currentUser.username)
@@ -51,7 +50,7 @@ while exitProgram == False:
     elif navigate == "4":
         showAllItems(cursor, currentItem)
     elif navigate == "5":
-        print("Account settings\n")
+        accountSettings(cursor, database, currentUser)
     elif navigate == "6":
         navigate = startMenu()
     elif navigate == "7":

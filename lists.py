@@ -150,22 +150,27 @@ def viewLists(cursor, database, UserAccount):
 
         df.set_index('Item ID', inplace=True, drop=True)
         print(f"\n\n\n\nList ID = {currentList.listid}\nList name = {currentList.listname} \n{df}")
-        
-        # ---- EditListMenu Fxn ---- 
-        edited = False
-        while edited == False:
-            print("\n\n\n----- Edit list ------\n\n1 --- Remove item from list\n2 --- Change list name\n3 --- Delete list\n4 --- Back to main menu\n")
-            editListMenu = input("Please type in a number from the menu: ")
-            if editListMenu == "1":
-                removeListItem(cursor, database, currentList)
-            elif editListMenu == "2":
-                updateListName(cursor, database, currentList)
-            elif editListMenu == "3":
-                edited = deleteList(cursor, database, currentList)
-            elif editListMenu == "4":
-                edited = True
-            else:
-                print("\n\nERROR: Please select a number from the menu")
+
+        editLists(cursor, database, currentList)
+
+def editLists(cursor, database, List):
+    """ Collection of functions organized statically in menu: removeListItem(), 
+    updateListName(), editListMenu() """ 
+    
+    edited = False
+    while edited == False:
+        print("\n\n\n----- Edit list ------\n\n1 --- Remove item from list\n2 --- Change list name\n3 --- Delete list\n4 --- Back to main menu\n")
+        editListMenu = input("Please type in a number from the menu: ")
+        if editListMenu == "1":
+            removeListItem(cursor, database, List)
+        elif editListMenu == "2":
+            updateListName(cursor, database, List)
+        elif editListMenu == "3":
+            edited = deleteList(cursor, database, List)
+        elif editListMenu == "4":
+            edited = True
+        else:
+            print("\n\nERROR: Please select a number from the menu")
 
 def removeListItem(cursor, database, List):
     """ Recursive function to remove as many items from user's list as requested by user """
