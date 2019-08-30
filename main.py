@@ -24,15 +24,16 @@ database = mysql.connector.connect(
 cursor = database.cursor()
 
 # ---------- Start menu ------------ #
-navigate = startMenu()
-currentUser = UserAccount()
 
-# signin or signup
-if navigate == "1":
-    signin(cursor, currentUser)
-elif navigate == "2":
-    newUserName = input("Please enter a username: ") 
-    currentUser.createAccount(newUserName, cursor, database, currentUser)
+entry = False
+while entry == False:
+    navigate = startMenu()
+    currentUser = UserAccount()
+    if navigate == "1":
+       entry = signin(cursor, currentUser)
+    elif navigate == "2":
+        newUserName = input("Please enter a username: ") 
+        entry = currentUser.createAccount(newUserName, cursor, database, currentUser)
 
 # ---------- Main Menu ---------- #
 exitProgram = False

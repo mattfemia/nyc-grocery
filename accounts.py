@@ -11,31 +11,6 @@ from datetime import datetime
 from menus import *
 from items import *
 
-class User:
-    def __init__(self):
-        self.user = self
-        self.location = "East Village" # TODO: Update this to apply to all locations
-        self.lists = []
-
-    def setLocation(self, newLocation, locations):
-        """ Defines user's location for stores """
-        if newLocation in locations:
-            self.location = newLocation
-            print("User location updated successfully.")
-        else:
-            print("Sorry, this location is not currently setup in our database. \nPlease try a different location")
-
-    def addList(self, newList):
-        """ Saves current list to user's list database """
-        def saveList(shoppingList):
-            if type(shoppingList) == GroceryList:
-                try:
-                    lists.append(newList)
-                except:
-                    print("Error: list could not be saved. Check to make sure it exists")
-            else:
-                print("Error: List could not be saved.")
-
 class UserAccount:
     def __init__(self):
         self.username = ""
@@ -129,7 +104,9 @@ class UserAccount:
         UserAccount.createPassword(UserAccount)
         UserAccount.assignEmail(UserAccount)
         UserAccount.userDetails(UserAccount)
-        print(UserAccount.registrationDate)
+
+        #TODO: Handle UserAccount.phone exception
+        #TODO: Add a try except clause for query
 
         query = f"INSERT INTO accounts (username, firstname, lastname, email, password, \
             phone, listcount, registrationdate) VALUES \
@@ -140,6 +117,8 @@ class UserAccount:
         cursor.execute(f"SELECT userid FROM accounts WHERE username = '{UserAccount.username}'")
         accountID = cursor.fetchall()
         UserAccount.userid = accountID
+
+        return True
 
     def updateUsername(self, username, cursor, database):
         """ Enters username value into the database """
@@ -165,6 +144,8 @@ def signin(cursor, UserAccount):
             cursor.execute(f"SELECT * FROM accounts WHERE username = '{username}'")
         except mysql.connector.errors.ProgrammingError:
             print("ERROR: Account information is not valid")
+            accountValid = False
+            return accountValid
         else:
             result = cursor.fetchall() 
             if result:
@@ -176,7 +157,9 @@ def signin(cursor, UserAccount):
                 UserAccount.lastname = last
                 UserAccount.email = email
                 if pw != password:
-                    print("\n\n----- ERROR: Account information is not valid. Please retry or signup for an account -----")
+                    print("\n\n----- ERROR: PW error. Information is not valid. Please retry or signup for an account -----")
+                    accountValid = False
+                    return accountValid
                 else:
                     UserAccount.password = pw
                     UserAccount.phone = phone
@@ -184,9 +167,11 @@ def signin(cursor, UserAccount):
                     UserAccount.registrationDate = regdate
                     print("Success!")
                     accountValid = True
+                    return accountValid
             else:
-                print("\n\n----- ERROR: Account information is not valid. Please retry or signup for an account -----\n")
-                startMenu()
+                print("\n\n----- ERROR: Account ERRORinformation is not valid. Please retry or signup for an account -----\n")
+                accountValid = False
+                return accountValid
             print("\n\n")
 
 def accountSettings(cursor, database, UserAccount):

@@ -1,7 +1,7 @@
 def startMenu():
     """Prompts the main menu options to load"""
 
-    print("\nWelcome to NYC groceries! \n")
+    print("\nWelcome to NYC Groceries! \n")
     print("\n1 --- Sign-in ---\n\nOR\n\n2 --- Sign-up ---\n\n")
 
     startmenu = input("Please type in a number from the menu:")
@@ -9,9 +9,7 @@ def startMenu():
 
     while (startmenu != "1") & (startmenu != "2"):
         print("\n\nERROR: Please select one of the current menu options \n")
-        print("\n1 --- Sign-in ---\n\nOR\n\n2 --- Sign-up ---\n\n")
-
-        startmenu = input("Please type in a number from the menu: ")
+        startMenu()
 
     return startmenu
 
