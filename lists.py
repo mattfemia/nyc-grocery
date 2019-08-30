@@ -48,25 +48,28 @@ def createlist(cursor, database, UserAccount, Store, Item):
             userSelection = False
             while userSelection == False:
                 optionSelect = itemLookup(cursor, Item)
-                print("\nOptions: \n")
-                itemSelection = input(f'\n{Item.itemid} ---' + " " + Item.itemname + " @ " + str(Item.price) + " per " + Item.unit + "\nSelect an item to add to your list or type 'None': ")
-                
-                if itemSelection == "1": # Dummy statement --------------------------------
-                    userList[f"{Item.itemname}"] = f"{Item.price} / {Item.unit}"
-                    print(f"\n{Item.itemname} successfully added to {listname}!")
-                    print(f"\n\nUser list = \n{userList}\n\n")
-                    dbList += str(Item.itemid) + ","
+                if optionSelect == True:
+                    print("\nOptions: \n")
+                    itemSelection = input(f'\n{Item.itemid} ---' + " " + Item.itemname + " @ " + str(Item.price) + " per " + Item.unit + "\nSelect an item to add to your list [or type 'None']: ")
+                    
+                    # TODO: FIX THIS BUG
+                    if itemSelection == "1": # Dummy statement --------------------------------
+                        userList[f"{Item.itemname}"] = f"{Item.price} / {Item.unit}"
+                        print(f"\n{Item.itemname} successfully added to {listname}!")
+                        print(f"\n\nUser list = \n{userList}\n\n")
+                        dbList += str(Item.itemid) + ","
 
-                    userSelection = addAnotherItem()
+                        userSelection = addAnotherItem()
 
-                elif itemSelection == "None":
-                    userSelection = addAnotherItem()
+                    elif itemSelection == "None":
+                        userSelection = addAnotherItem()
 
+                    else:
+                        print("\nERROR: Invalid selection")
+
+                    print("\n\n")
                 else:
-                    print("\nERROR: Invalid selection")
-
-                print("\n\n")
-
+                    pass
             query = f"INSERT INTO lists (userid, listname, ListOfItemIDs, totalCost) VALUES ({UserAccount.userid}, '{listname}', '{dbList}', 0.00)"
             cursor.execute(query)
             database.commit()

@@ -1,5 +1,3 @@
-#TODO: Remove newUserName from the signup options
-
 #!!!!! SET ENVIRONMENT VARIABLE DATABASE_PW OR PROG WILL NOT RUN !!!!!
 
 import mysql.connector
@@ -86,7 +84,7 @@ class UserAccount:
                 try:
                     float(phoneNumber)
                 except ValueError:
-                    print("Invalid phone number")
+                    print("Invalid phone number. Exclude dashes i.e) 3151230987")
                 else:
                     UserAccount.phone = phoneNumber
                     phone = True
@@ -105,20 +103,20 @@ class UserAccount:
         UserAccount.assignEmail(UserAccount)
         UserAccount.userDetails(UserAccount)
 
-        #TODO: Handle UserAccount.phone exception
-        #TODO: Add a try except clause for query
-
-        query = f"INSERT INTO accounts (username, firstname, lastname, email, password, \
+        try:
+            query = f"INSERT INTO accounts (username, firstname, lastname, email, password, \
             phone, listcount, registrationdate) VALUES \
                 {UserAccount.username, UserAccount.firstname, UserAccount.lastname, UserAccount.email, UserAccount.password, int(UserAccount.phone), UserAccount.listCount, str(UserAccount.registrationDate)}"
-        cursor.execute(query)
-        database.commit()
-
-        cursor.execute(f"SELECT userid FROM accounts WHERE username = '{UserAccount.username}'")
-        accountID = cursor.fetchall()
-        UserAccount.userid = accountID
-
-        return True
+            cursor.execute(query)
+        except:
+            print("ERROR: Please try again later")
+            return False
+        else:
+            database.commit()
+            cursor.execute(f"SELECT userid FROM accounts WHERE username = '{UserAccount.username}'")
+            accountID = cursor.fetchall()
+            UserAccount.userid = accountID
+            return True
 
     def updateUsername(self, username, cursor, database):
         """ Enters username value into the database """
@@ -157,7 +155,7 @@ def signin(cursor, UserAccount):
                 UserAccount.lastname = last
                 UserAccount.email = email
                 if pw != password:
-                    print("\n\n----- ERROR: PW error. Information is not valid. Please retry or signup for an account -----")
+                    print("\n\n----- ERROR: Information is not valid. Please retry or signup for an account -----")
                     accountValid = False
                     return accountValid
                 else:
@@ -169,7 +167,7 @@ def signin(cursor, UserAccount):
                     accountValid = True
                     return accountValid
             else:
-                print("\n\n----- ERROR: Account ERRORinformation is not valid. Please retry or signup for an account -----\n")
+                print("\n\n----- ERROR: Account information is not valid. Please retry or signup for an account -----\n")
                 accountValid = False
                 return accountValid
             print("\n\n")

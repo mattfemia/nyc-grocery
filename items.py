@@ -2,9 +2,6 @@ from accounts import *
 from menus import *
 import pandas as pd
 
-# TODO: Transfer all functions into list class
-# TODO: Migrate files into separate list.py file?
-
 class Store:
     def __init__(self):
         self.storeid = 0
@@ -19,7 +16,9 @@ class Item:
         self.price = 0.00
         self.unit = ""
         self.category = ""
+        self.subcategory = ""
         self.productSize = ""
+        self.storename = ""
         self.storeid = 0
     # def displayItem():
 
@@ -50,37 +49,48 @@ def storeLookup(cursor, Store):
 
 def itemLookup(cursor, Item):
     try:
-        itemName = input("Enter the name of the item: ")
+        itemName = input("Enter the name of an item: ")
         itemName += "%"
 
-        # JOIN query
-        # --- 
-
-        query = f"SELECT itemid, itemname, price, unit, productSize, storeid FROM items WHERE itemname LIKE '{itemName}' ORDER BY itemname ASC"
+        query = f"SELECT i.itemid, i.itemname, s.storename, i.price, i.unit, i.productSize FROM items AS i INNER JOIN stores AS s ON i.storeid = s.storeid WHERE i.itemname LIKE '{itemName}' ORDER BY i.itemname ASC"
         cursor.execute(query)
         itemResults = cursor.fetchall()
-        unpack = itemResults[0]
+
     except IndexError:
         print("ERROR: Item not found")
         lookupMethod = createListMenu()
     else:
-        # TODO: Return all objects not just one
-        # Enumerate query results?
+        df = pd.DataFrame(itemResults, columns=['Item ID', 'Item', 'Store ID', 'Price', 'Unit', 'Size'])    
+        df.set_index('Item ID', inplace=True, drop=True)
+        if df.empty == True:
+            print("\n\nSorry, no item with that name is in our database")
+            return False
+        else:
+            print(df)
+            itemSelect = input("\n\nPlease enter the Item ID # of the item you would like to select: ")
+            try:
+                float(itemSelect)
+            except ValueError:
+                print("Invalid entry. Please type the number of the Item ID")
+                return False
+            else:
+                query = f"SELECT i.itemid, i.itemname, s.storename, i.price, i.unit, i.category, i.subcategory, i.productSize, i.storeid FROM items AS i INNER JOIN stores AS s ON i.storeid = s.storeid WHERE i.itemid = '{itemSelect}'"
+                cursor.execute(query)
+                itemResults = cursor.fetchall()
+                unpack = itemResults[0]
+                (itemid, itemname, storename, price, unit, category, subcategory, productSize, storeid) = unpack
 
-        selection = True
-        (itemid, itemname, price, unit, productSize, storeid) = unpack
-
-        # TODO: User selects which item
-        # --- 
-
-        # ---------- Append Item object ---------- 
-        Item.itemid = itemid
-        Item.itemname = itemname
-        Item.price = price
-        Item.unit = unit
-        Item.productSize = productSize
-        Item.storeid = storeid
-    return selection
+                #TODO: DRY
+                Item.itemid = itemid
+                Item.itemname = itemname
+                Item.price = price
+                Item.unit = unit
+                Item.productSize = productSize
+                Item.storeid = storeid
+                Item.storename = storename
+                Item.category = category
+                Item.subcategory = subcategory
+                return True
 
 def addAnotherItem():
     addItem = input("Would you like to search for another item? [y/n]: ")
@@ -141,5 +151,4 @@ def showAllItems(cursor, Item):
 
     df = pd.DataFrame(itemResults, columns=['Item ID', 'Item', 'Store ID', 'Category', 'Subcategory', 'Price', 'Unit', 'Size'])    
     df.set_index('Item ID', inplace=True, drop=True)
-
     print(df) 

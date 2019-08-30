@@ -10,7 +10,7 @@ from items import *
 from menus import *
 from lists import *
 
-# ---------- PROGRAM BEGINS HERE ---------- #
+# ------------ PROGRAM BEGINS HERE ------------ #
 
 password = os.getenv("DATABASE_PW")
 database = mysql.connector.connect(
@@ -23,7 +23,7 @@ database = mysql.connector.connect(
 
 cursor = database.cursor()
 
-# ---------- Start menu ------------ #
+# ------------ Start menu ------------ #
 
 entry = False
 while entry == False:
@@ -35,7 +35,7 @@ while entry == False:
         newUserName = input("Please enter a username: ") 
         entry = currentUser.createAccount(newUserName, cursor, database, currentUser)
 
-# ---------- Main Menu ---------- #
+# ------------ Main Menu ------------ #
 exitProgram = False
 while exitProgram == False:
     navigate = mainMenu(currentUser.username)
