@@ -12,11 +12,12 @@ class GroceryList:
 
         
 def createlist(cursor, database, UserAccount, Store, Item):
-    """ Creates new list locally and in rdb """
+    """ Creates new list locally and in rdb. User can add item directly or by searching inventory
+    of a specific vendor """
     
     listname = input("Please enter a name for the list: ")
     userList = {}
-    dbList = ""
+    dbList = []
     lookupMethod = createListMenu()
     
     optionSelect = False
@@ -49,27 +50,16 @@ def createlist(cursor, database, UserAccount, Store, Item):
             while userSelection == False:
                 optionSelect = itemLookup(cursor, Item)
                 if optionSelect == True:
-                    print("\nOptions: \n")
-                    itemSelection = input(f'\n{Item.itemid} ---' + " " + Item.itemname + " @ " + str(Item.price) + " per " + Item.unit + "\nSelect an item to add to your list [or type 'None']: ")
+                    userList[f"{Item.itemname}"] = f"{Item.price} / {Item.unit}"
+                    print(f"\n{Item.itemname} successfully added to {listname}!")
+                    print(f"\n\nUser list = \n{userList}\n\n")
+                    dbList.append(Item.itemid)
                     
-                    # TODO: FIX THIS BUG
-                    if itemSelection == "1": # Dummy statement --------------------------------
-                        userList[f"{Item.itemname}"] = f"{Item.price} / {Item.unit}"
-                        print(f"\n{Item.itemname} successfully added to {listname}!")
-                        print(f"\n\nUser list = \n{userList}\n\n")
-                        dbList += str(Item.itemid) + ","
-
-                        userSelection = addAnotherItem()
-
-                    elif itemSelection == "None":
-                        userSelection = addAnotherItem()
-
-                    else:
-                        print("\nERROR: Invalid selection")
-
+                    userSelection = addAnotherItem()
                     print("\n\n")
                 else:
-                    pass
+                    userSelection = addAnotherItem()
+
             query = f"INSERT INTO lists (userid, listname, ListOfItemIDs, totalCost) VALUES ({UserAccount.userid}, '{listname}', '{dbList}', 0.00)"
             cursor.execute(query)
             database.commit()
@@ -95,6 +85,7 @@ def viewLists(cursor, database, UserAccount):
     currentItem = Item()
 
     #TODO: This is only accounting for a user having one list -- make it so the user selects which list to edit
+    #TODO: Restructure database to have an ORDERS table --> then reference that table through orderid belonging to userid 'x'
     
     for entry in result:
         currentList.listid = entry[1]
@@ -123,7 +114,7 @@ def viewLists(cursor, database, UserAccount):
     if (edit == "y") or (edit == "Y"):
 
         # TODO: Disable user from accessing lists outside of their own (currently can type any list id and retrieve it)
-
+        
         listSelect = input("Please enter the List ID shown above the list you would like to edit: ")
 
         query = f"SELECT userid, listid, listname, ListOfItemIDs FROM lists WHERE listid = {listSelect}"

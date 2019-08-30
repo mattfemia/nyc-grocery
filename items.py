@@ -50,6 +50,7 @@ def storeLookup(cursor, Store):
 def itemLookup(cursor, Item):
     try:
         itemName = input("Enter the name of an item: ")
+        print("\n\n")
         itemName += "%"
 
         query = f"SELECT i.itemid, i.itemname, s.storename, i.price, i.unit, i.productSize FROM items AS i INNER JOIN stores AS s ON i.storeid = s.storeid WHERE i.itemname LIKE '{itemName}' ORDER BY i.itemname ASC"
