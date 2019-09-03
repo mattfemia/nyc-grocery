@@ -5,3 +5,4 @@ venv/
 *.sql
 grocery.sql
 grocery-edits.sql
+.vscode/

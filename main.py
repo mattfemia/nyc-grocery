@@ -18,7 +18,7 @@ database = mysql.connector.connect(
     user="root",
     passwd=password,
     auth_plugin='mysql_native_password',
-    database="Grocery"
+    database="grocery_test"
 )
 
 cursor = database.cursor()
