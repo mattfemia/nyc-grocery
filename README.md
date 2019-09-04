@@ -11,12 +11,14 @@
 
 #### Tentative project Outline:
 
-- [x] Database design
 - [x] CLI interface text application
-- [ ] Test and debug
-- [ ] Restructure database based on any new features
-- [ ] Populate database (web scraper, APIs, manually) --> to a reasonable level
-- [ ] Polish + test functionality with .exe file
+  - [x] Database design
+  - [x] Basic Functionality (Account creation, database queries, program navigation)
+  - [ ] Debug
+  - [ ] Restructure database based on any new features
+  - [ ] Write tests
+  - [ ] Populate database (web scraper, APIs, manually)
+  - [ ] Polish + test functionality with .exe file
 - [ ] Temporary GUI --> Flask web app or JS-based interface
 - [ ] Mobile application
   - [ ] iOS

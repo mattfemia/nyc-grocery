@@ -198,10 +198,10 @@ def accountSettings(cursor, database, UserAccount):
 def updateUsername(cursor, database, UserAccount):
     """ Updates username locally and in database """
 
-    newUserName = input("\nPlease enter new username: ")
-    retype = input("\nPlease retype new username: ")
     confirm = False
     while confirm == False:
+        newUserName = input("\nPlease enter new username: ")
+        retype = input("\nPlease retype new username: ")
         if newUserName == retype:
             try:
                 UserAccount.username = newUserName
