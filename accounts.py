@@ -25,12 +25,12 @@ class UserAccount:
         """ Send query to database to check if username already exists. If query returns no value
         username is saved to current user's account """
         
-        cursor.execute(f"SELECT username FROM accounts WHERE username = '{username}' ")
+        cursor.execute("SELECT username FROM accounts WHERE username = %s", (username,))
         result = cursor.fetchall()
         while len(result) != 0:
             print("\n\n\n\n\nSorry that username is taken\n")
             username = input("Please select another username: ")
-            cursor.execute(f"SELECT username FROM accounts WHERE username = '{username}' ")
+            cursor.execute("SELECT username FROM accounts WHERE username = %s", (username,))
             result = cursor.fetchall()
         UserAccount.username = username
 
@@ -120,7 +120,7 @@ class UserAccount:
 
     def updateUsername(self, username, cursor, database):
         """ Enters username value into the database """
-        cursor.execute(f"INSERT INTO accounts (username) VALUES ('{username}')")
+        cursor.execute("INSERT INTO accounts (username) VALUES ('%s')", (username,))
         database.commit()
         # insertUsername = "INSERT INTO accounts (username) VALUES (%s)"
         # username = username
@@ -139,7 +139,7 @@ def signin(cursor, UserAccount):
             print(username)
             username = f"{username}"
             print(username)
-            cursor.execute(f"SELECT * FROM accounts WHERE username = '{username}'")
+            cursor.execute("SELECT * FROM accounts WHERE username = %s", (username,))
         except mysql.connector.errors.ProgrammingError:
             print("ERROR: Account information is not valid")
             accountValid = False

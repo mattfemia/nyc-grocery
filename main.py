@@ -18,42 +18,45 @@ database = mysql.connector.connect(
     user="root",
     passwd=password,
     auth_plugin='mysql_native_password',
-    database="grocery_test"
+    database="Grocery"
 )
 
 cursor = database.cursor()
 
 # ------------ Start menu ------------ #
 
-entry = False
-while entry == False:
-    navigate = startMenu()
-    currentUser = UserAccount()
-    if navigate == "1":
-       entry = signin(cursor, currentUser)
-    elif navigate == "2":
-        newUserName = input("Please enter a username: ") 
-        entry = currentUser.createAccount(newUserName, cursor, database, currentUser)
-
-# ------------ Main Menu ------------ #
 exitProgram = False
 while exitProgram == False:
-    navigate = mainMenu(currentUser.username)
-    currentStore = Store()
-    currentItem = Item()
-
-    if navigate == "1":
-        viewLists(cursor, database, currentUser)
-    elif navigate == "2":
-        createlist(cursor, database, currentUser, currentStore, currentItem)
-    elif navigate == "3":
-        priceLookup(cursor)
-    elif navigate == "4":
-        showAllItems(cursor, currentItem)
-    elif navigate == "5":
-        accountSettings(cursor, database, currentUser)
-    elif navigate == "6":
+    enterProgram = False
+    while enterProgram == False:
         navigate = startMenu()
-    elif navigate == "7":
-        print("Exiting program ...\n\n\n\n")
-        exitProgram = True
+        currentUser = UserAccount()
+        if navigate == "1":
+            enterProgram = signin(cursor, currentUser)
+        elif navigate == "2":
+            newUserName = input("Please enter a username: ") 
+            enterProgram = currentUser.createAccount(newUserName, cursor, database, currentUser)
+
+    # ------------ Main Menu ------------ #
+    logged = False
+    while logged == False:
+        navigate = mainMenu(currentUser.username)
+        currentStore = Store()
+        currentItem = Item()
+
+        if navigate == "1":
+            viewLists(cursor, database, currentUser)
+        elif navigate == "2":
+            createlist(cursor, database, currentUser, currentStore, currentItem)
+        elif navigate == "3":
+            priceLookup(cursor)
+        elif navigate == "4":
+            showAllItems(cursor, currentItem)
+        elif navigate == "5":
+            accountSettings(cursor, database, currentUser)
+        elif navigate == "6":
+            logged = True
+        elif navigate == "7":
+            print("Exiting program ...\n\n\n\n")
+            exitProgram = True
+            logged = True
