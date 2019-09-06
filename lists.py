@@ -54,11 +54,15 @@ def createlist(cursor, database, UserAccount, Store, Item):
                     print(f"\n{Item.itemname} successfully added to {listname}!")
                     print(f"\n\nUser list = \n{userList}\n\n")
                     dbList.append(Item.itemid)
+                    for item in dbList:
+                        print(item)
                     
                     userSelection = addAnotherItem()
+                    optionSelect = userSelection
                     print("\n\n")
                 else:
                     userSelection = addAnotherItem()
+                    optionSelect = userSelection
 
             query = f"INSERT INTO lists (userid, listname, ListOfItemIDs, totalCost) VALUES ({UserAccount.userid}, '{listname}', '{dbList}', 0.00)"
             cursor.execute(query)
@@ -179,7 +183,7 @@ def removeListItem(cursor, database, List):
 
     removeAnotherItem = input("Would you like to remove another item? [y/n]: ")
     if (removeAnotherItem == "y") or (removeAnotherItem == "Y"):
-        removeListItem(cursor, database, List, UserAccount)
+        removeListItem(cursor, database, List)
     else:
         pass
 
