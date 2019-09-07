@@ -18,6 +18,7 @@ class UserAccount:
         self.email = ""
         self.phone = ""
         self.listCount = 0
+        self.lists = []
         self.registrationDate = ""
         self.userid = 0
 
@@ -136,9 +137,7 @@ def signin(cursor, UserAccount):
         try:
             username = input("Username: ")
             password = input("Password: ")
-            print(username)
             username = f"{username}"
-            print(username)
             cursor.execute("SELECT * FROM accounts WHERE username = %s", (username,))
         except mysql.connector.errors.ProgrammingError:
             print("ERROR: Account information is not valid")
@@ -164,6 +163,12 @@ def signin(cursor, UserAccount):
                     UserAccount.listCount = listcount
                     UserAccount.registrationDate = regdate
                     print("Success!")
+                    if UserAccount.listCount > 0:
+                        query = f"SELECT listid FROM lists WHERE userid = {UserAccount.userid}"
+                        cursor.execute(query)
+                        result = cursor.fetchall()
+                        for item in result:
+                            UserAccount.lists.append(item[0])
                     accountValid = True
                     return accountValid
             else:

@@ -93,12 +93,22 @@ def viewLists(cursor, database, UserAccount):
     """ Queries all itemids in each user's list and stitches together itemid, itemname, storename, category, 
     price, unit into a formatted structure """
 
+    listContainer = []
+    query = f"SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE userid = {UserAccount.userid}"
+    cursor.execute(query)
+    listItems = cursor.fetchall()
+    for item in listItems:
+        unpack = item[0]
+        listContainer.append(unpack)
+
+    currentList = GroceryList()
+    currentList.items = listContainer
+    currentItem = Item()
+    
     query = f"SELECT userid, listid, listname FROM lists WHERE userid = {UserAccount.userid}"
     cursor.execute(query)
     result = cursor.fetchall()
 
-    currentList = GroceryList()
-    currentItem = Item()
 
     #TODO: This is only accounting for a user having one list -- make it so the user selects which list to edit
     #TODO: Restructure database to have an ORDERS table --> then reference that table through orderid belonging to userid 'x'
@@ -106,7 +116,6 @@ def viewLists(cursor, database, UserAccount):
     for entry in result:
         currentList.listid = entry[1]
         currentList.listname = entry[2]
-        currentList.items = entry[3]
 
         df = pd.DataFrame(columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
         for item in currentList.items:
@@ -130,41 +139,52 @@ def viewLists(cursor, database, UserAccount):
     if (edit == "y") or (edit == "Y"):
 
         # TODO: Disable user from accessing lists outside of their own (currently can type any list id and retrieve it)
-        
-        listSelect = input("Please enter the List ID shown above the list you would like to edit: ")
+        validList = False
+        while validList == False:
+            listSelect = input("Please enter the List ID shown above the list you would like to edit: ")
+            if int(listSelect) in UserAccount.lists:
+                currentList = GroceryList()
+                listContainer = []
+                query = f"SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE userid = {UserAccount.userid}"
+                cursor.execute(query)
+                listItems = cursor.fetchall()
+                for item in listItems:
+                    unpack = item[0]
+                    listContainer.append(unpack)
 
-        query = f"SELECT userid, listid, listname FROM lists WHERE listid = {listSelect}"
-        cursor.execute(query)
-        result = cursor.fetchall()
+                currentList.items = listContainer
 
-        currentList = GroceryList()
-        currentItem = Item()
-
-        for entry in result:
-            currentList.listid = entry[1]
-            currentList.listname = entry[2]
-            
-            #TODO: SELECT FROM listdetails -- instead of querying the listitems from the lists table
-            
-            currentList.items = entry[3]
-
-        df = pd.DataFrame(columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
-        for item in currentList.items:
-
-            # TODO: Fix this conditional to account for numbers with digits > 1 (10, 23, 123). Need to change list item structure
-            if (item != ",") and (item != " "):
-                
-                currentItem.itemid = item
-                query = f"SELECT itemid, itemname, storename, category, price, unit FROM items INNER JOIN stores ON items.storeid = stores.storeid WHERE itemid = '{currentItem.itemid}'"
+                query = f"SELECT userid, listid, listname FROM lists WHERE listid = {listSelect}"
                 cursor.execute(query)
                 result = cursor.fetchall()
-                df2 = pd.DataFrame(result, columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
-                df = pd.concat([df, df2])
 
-        df.set_index('Item ID', inplace=True, drop=True)
-        print(f"\n\n\n\nList ID = {currentList.listid}\nList name = {currentList.listname} \n{df}")
+                for entry in result:
+                    currentList.listid = entry[1]
+                    currentList.listname = entry[2]
 
-        editLists(cursor, database, currentList)
+                df = pd.DataFrame(columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
+                for item in currentList.items:
+                        
+                    currentItem.itemid = item
+                    query = f"SELECT itemid, itemname, storename, category, price, unit FROM items INNER JOIN stores ON items.storeid = stores.storeid WHERE itemid = '{currentItem.itemid}'"
+                    cursor.execute(query)
+                    result = cursor.fetchall()
+                    df2 = pd.DataFrame(result, columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
+                    df = pd.concat([df, df2])
+
+                df.set_index('Item ID', inplace=True, drop=True)
+                print(f"\n\n\n\nList ID = {currentList.listid}\nList name = {currentList.listname} \n{df}")
+
+                editLists(cursor, database, currentList)
+                
+                validList = True
+            else:
+                retry = input("You do not have a list ID matching your input. Retry? [y/n]")
+            
+                if (retry == "y") or (retry == "Y"):
+                    validList = False
+                else:
+                    validList = True
 
 def editLists(cursor, database, List):
     """ Collection of functions organized statically in menu: removeListItem(), 
