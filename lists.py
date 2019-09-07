@@ -18,6 +18,25 @@ def createlist(cursor, database, UserAccount, Store, Item):
     listname = input("Please enter a name for the list: ")
     userList = {}
     dbList = []
+    
+    query = f"INSERT INTO lists (userid, listname, totalCost) VALUES ({UserAccount.userid}, '{listname}', 0.00)"
+    cursor.execute(query)
+    database.commit()
+    
+    UserAccount.listCount += 1
+    query = f"UPDATE accounts SET listcount = ({UserAccount.listCount}) WHERE userid = {UserAccount.userid}"
+    cursor.execute(query)
+    database.commit()
+    
+    query = f"SELECT listid FROM lists WHERE listname = '{listname}';"
+    cursor.execute(query)
+    result = cursor.fetchall()
+    unpack = result[0]
+    listid = unpack[0]
+    print(f"LIST ID = {listid}")
+    print(listid)
+    
+    
     lookupMethod = createListMenu()
     
     optionSelect = False
@@ -54,24 +73,17 @@ def createlist(cursor, database, UserAccount, Store, Item):
                     print(f"\n{Item.itemname} successfully added to {listname}!")
                     print(f"\n\nUser list = \n{userList}\n\n")
                     dbList.append(Item.itemid)
-                    for item in dbList:
-                        print(item)
                     
+                    query = f"INSERT INTO listDetails (listid, itemid, quantity, pricePerUnit) VALUES ({listid}, {Item.itemid}, 1, {Item.price})"
+                    cursor.execute(query)
+                    database.commit()
+                                        
                     userSelection = addAnotherItem()
                     optionSelect = userSelection
                     print("\n\n")
                 else:
                     userSelection = addAnotherItem()
                     optionSelect = userSelection
-
-            query = f"INSERT INTO lists (userid, listname, ListOfItemIDs, totalCost) VALUES ({UserAccount.userid}, '{listname}', '{dbList}', 0.00)"
-            cursor.execute(query)
-            database.commit()
-            
-            UserAccount.listCount += 1
-            query = f"UPDATE accounts SET listcount = ({UserAccount.listCount}) WHERE userid = {UserAccount.userid}"
-            cursor.execute(query)
-            database.commit()
 
         else:
             print("\n\nERROR: Invalid option selected. Please type 1 or 2 and then hit enter.")
@@ -81,7 +93,7 @@ def viewLists(cursor, database, UserAccount):
     """ Queries all itemids in each user's list and stitches together itemid, itemname, storename, category, 
     price, unit into a formatted structure """
 
-    query = f"SELECT userid, listid, listname, ListOfItemIDs FROM lists WHERE userid = {UserAccount.userid}"
+    query = f"SELECT userid, listid, listname FROM lists WHERE userid = {UserAccount.userid}"
     cursor.execute(query)
     result = cursor.fetchall()
 
@@ -121,7 +133,7 @@ def viewLists(cursor, database, UserAccount):
         
         listSelect = input("Please enter the List ID shown above the list you would like to edit: ")
 
-        query = f"SELECT userid, listid, listname, ListOfItemIDs FROM lists WHERE listid = {listSelect}"
+        query = f"SELECT userid, listid, listname FROM lists WHERE listid = {listSelect}"
         cursor.execute(query)
         result = cursor.fetchall()
 
@@ -131,6 +143,9 @@ def viewLists(cursor, database, UserAccount):
         for entry in result:
             currentList.listid = entry[1]
             currentList.listname = entry[2]
+            
+            #TODO: SELECT FROM listdetails -- instead of querying the listitems from the lists table
+            
             currentList.items = entry[3]
 
         df = pd.DataFrame(columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
