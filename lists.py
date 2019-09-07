@@ -93,17 +93,8 @@ def viewLists(cursor, database, UserAccount):
     """ Queries all itemids in each user's list and stitches together itemid, itemname, storename, category, 
     price, unit into a formatted structure """
 
-    listContainer = []
-    query = f"SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE userid = {UserAccount.userid}"
-    cursor.execute(query)
-    listItems = cursor.fetchall()
-    for item in listItems:
-        unpack = item[0]
-        listContainer.append(unpack)
-
-    currentList = GroceryList()
-    currentList.items = listContainer
     currentItem = Item()
+    currentList = GroceryList()
     
     query = f"SELECT userid, listid, listname FROM lists WHERE userid = {UserAccount.userid}"
     cursor.execute(query)
@@ -118,6 +109,19 @@ def viewLists(cursor, database, UserAccount):
         currentList.listname = entry[2]
 
         df = pd.DataFrame(columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
+        
+        listContainer = []
+    
+        #TODO: Select only unique listid
+        query = f"SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE listdetails.listid = {currentList.listid}"
+        cursor.execute(query)
+        listItems = cursor.fetchall()
+        for item in listItems:
+            unpack = item[0]
+            listContainer.append(unpack)
+
+        currentList.items = listContainer
+        
         for item in currentList.items:
             if (item != ",") and (item != " "):
                 
