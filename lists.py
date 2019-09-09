@@ -113,7 +113,7 @@ def viewLists(cursor, database, UserAccount):
         listContainer = []
     
         #TODO: Select only unique listid
-        query = f"SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE listdetails.listid = {currentList.listid}"
+        query = f"SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE listid = {currentList.listid}"
         cursor.execute(query)
         listItems = cursor.fetchall()
         for item in listItems:
