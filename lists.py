@@ -99,6 +99,7 @@ def viewLists(cursor, database, UserAccount):
     query = f"SELECT userid, listid, listname FROM lists WHERE userid = {UserAccount.userid}"
     cursor.execute(query)
     result = cursor.fetchall()
+    print(result)
 
 
     #TODO: This is only accounting for a user having one list -- make it so the user selects which list to edit
@@ -113,12 +114,14 @@ def viewLists(cursor, database, UserAccount):
         listContainer = []
     
         #TODO: Select only unique listid
-        query = f"SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE listid = {currentList.listid}"
+        query = f"SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE lists.listid = {currentList.listid}"
         cursor.execute(query)
         listItems = cursor.fetchall()
         for item in listItems:
+            print("item = " + item)
             unpack = item[0]
             listContainer.append(unpack)
+            print(listContainer)
 
         currentList.items = listContainer
         
