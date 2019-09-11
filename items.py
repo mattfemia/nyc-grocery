@@ -27,8 +27,8 @@ def storeLookup(cursor, Store):
     try:
         storeName = input("Enter the name of the store: ")
         storeName += "%"
-        query = f"SELECT storeid, storename, address FROM stores WHERE storename LIKE '{storeName}' ORDER BY storename ASC"
-        cursor.execute(query)
+        query = "SELECT storeid, storename, address FROM stores WHERE storename LIKE %s ORDER BY storename ASC"
+        cursor.execute(query, (storeName,))
 
         # Give option to select inventory
         # --- 
@@ -53,8 +53,8 @@ def itemLookup(cursor, Item):
         print("\n\n")
         itemName += "%"
 
-        query = f"SELECT i.itemid, i.itemname, s.storename, i.price, i.unit, i.productSize FROM items AS i INNER JOIN stores AS s ON i.storeid = s.storeid WHERE i.itemname LIKE '{itemName}' ORDER BY i.itemname ASC"
-        cursor.execute(query)
+        query = "SELECT i.itemid, i.itemname, s.storename, i.price, i.unit, i.productSize FROM items AS i INNER JOIN stores AS s ON i.storeid = s.storeid WHERE i.itemname LIKE %s ORDER BY i.itemname ASC"
+        cursor.execute(query, (itemName,))
         itemResults = cursor.fetchall()
 
     except IndexError:
@@ -75,8 +75,8 @@ def itemLookup(cursor, Item):
                 print("Invalid entry. Please type the number of the Item ID")
                 return False
             else:
-                query = f"SELECT i.itemid, i.itemname, s.storename, i.price, i.unit, i.category, i.subcategory, i.productSize, i.storeid FROM items AS i INNER JOIN stores AS s ON i.storeid = s.storeid WHERE i.itemid = '{itemSelect}'"
-                cursor.execute(query)
+                query = "SELECT i.itemid, i.itemname, s.storename, i.price, i.unit, i.category, i.subcategory, i.productSize, i.storeid FROM items AS i INNER JOIN stores AS s ON i.storeid = s.storeid WHERE i.itemid = %s"
+                cursor.execute(query, (itemSelect,))
                 itemResults = cursor.fetchall()
                 unpack = itemResults[0]
                 (itemid, itemname, storename, price, unit, category, subcategory, productSize, storeid) = unpack
@@ -112,8 +112,8 @@ def priceLookup(cursor):
             # JOIN query
             # --- 
 
-            query = f"SELECT itemid, itemname, price, unit, productSize, storeid FROM items WHERE itemname LIKE '{itemName}' ORDER BY itemname ASC"
-            cursor.execute(query)
+            query = "SELECT itemid, itemname, price, unit, productSize, storeid FROM items WHERE itemname LIKE %s ORDER BY itemname ASC"
+            cursor.execute(query, (itemName,))
         except IndexError:
             print("ERROR: Item not found")
         else:

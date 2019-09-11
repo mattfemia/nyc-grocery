@@ -26,12 +26,14 @@ class UserAccount:
         """ Send query to database to check if username already exists. If query returns no value
         username is saved to current user's account """
         
-        cursor.execute("SELECT username FROM accounts WHERE username = %s", (username,))
+        query = "SELECT username FROM accounts WHERE username = %s"
+        cursor.execute(query, (username,))
         result = cursor.fetchall()
         while len(result) != 0:
             print("\n\n\n\n\nSorry that username is taken\n")
             username = input("Please select another username: ")
-            cursor.execute("SELECT username FROM accounts WHERE username = %s", (username,))
+            query = "SELECT username FROM accounts WHERE username = %s"
+            cursor.execute(query, (username,))
             result = cursor.fetchall()
         UserAccount.username = username
 
@@ -105,27 +107,25 @@ class UserAccount:
         UserAccount.userDetails(UserAccount)
 
         try:
-            query = f"INSERT INTO accounts (username, firstname, lastname, email, password, \
-            phone, listcount, registrationdate) VALUES \
-                {UserAccount.username, UserAccount.firstname, UserAccount.lastname, UserAccount.email, UserAccount.password, int(UserAccount.phone), UserAccount.listCount, str(UserAccount.registrationDate)}"
-            cursor.execute(query)
+            query = "INSERT INTO accounts (username, firstname, lastname, email, password, \
+            phone, listcount, registrationdate) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+            cursor.execute(query, (UserAccount.username, UserAccount.firstname, UserAccount.lastname, UserAccount.email, UserAccount.password, int(UserAccount.phone), UserAccount.listCount, str(UserAccount.registrationDate)))
         except:
             print("ERROR: Please try again later")
             return False
         else:
             database.commit()
-            cursor.execute(f"SELECT userid FROM accounts WHERE username = '{UserAccount.username}'")
+            query = "SELECT userid FROM accounts WHERE username = %s"
+            cursor.execute(query, (UserAccount.username,))
             accountID = cursor.fetchall()
             UserAccount.userid = accountID
             return True
 
     def updateUsername(self, username, cursor, database):
         """ Enters username value into the database """
-        cursor.execute("INSERT INTO accounts (username) VALUES ('%s')", (username,))
+        query = "INSERT INTO accounts (username) VALUES (%s)"
+        cursor.execute(query, (username,))
         database.commit()
-        # insertUsername = "INSERT INTO accounts (username) VALUES (%s)"
-        # username = username
-
 
 def signin(cursor, UserAccount):
     """ Queries database against the credentials provided and either validates or
@@ -138,7 +138,9 @@ def signin(cursor, UserAccount):
             username = input("Username: ")
             password = input("Password: ")
             username = f"{username}"
-            cursor.execute("SELECT * FROM accounts WHERE username = %s", (username,))
+
+            query = "SELECT * FROM accounts WHERE username = %s"
+            cursor.execute(query, (username,))
         except mysql.connector.errors.ProgrammingError:
             print("ERROR: Account information is not valid")
             accountValid = False
@@ -164,8 +166,8 @@ def signin(cursor, UserAccount):
                     UserAccount.registrationDate = regdate
                     print("Success!")
                     if UserAccount.listCount > 0:
-                        query = f"SELECT listid FROM lists WHERE userid = {UserAccount.userid}"
-                        cursor.execute(query)
+                        query = "SELECT listid FROM lists WHERE userid = %s"
+                        cursor.execute(query, (UserAccount.userid,))
                         result = cursor.fetchall()
                         for item in result:
                             UserAccount.lists.append(item[0])
@@ -210,8 +212,8 @@ def updateUsername(cursor, database, UserAccount):
         if newUserName == retype:
             try:
                 UserAccount.username = newUserName
-                query = f"UPDATE accounts SET username = '{UserAccount.username}' WHERE userid = '{UserAccount.userid}'"
-                cursor.execute(query)
+                query = "UPDATE accounts SET username = %s WHERE userid = %s"
+                cursor.execute(query, (UserAccount.username, UserAccount.userid))
             except:
                 print("ERROR: Username could not be updated please try again later")
             else:
@@ -235,8 +237,8 @@ def resetPassword(cursor, database, UserAccount):
                 matchingPasswords = True
                 UserAccount.password = newPassword
                 try:
-                    query = f"UPDATE accounts SET password = '{UserAccount.password}' WHERE userid = '{UserAccount.userid}'"
-                    cursor.execute(query)
+                    query = "UPDATE accounts SET password = %s WHERE userid = %s"
+                    cursor.execute(query, (UserAccount.password, UserAccount.userid))
                 except:
                     print("\nERROR: Password could not be updated. Please try again later.\n")
                 else:
@@ -261,8 +263,8 @@ def updateEmail(cursor, database, UserAccount):
     newEmail = input(f"\nPlease enter the new email address: ")
     UserAccount.email = newEmail
     try:
-        query = f"UPDATE accounts SET email = '{UserAccount.email}' WHERE userid = '{UserAccount.userid}'"
-        cursor.execute(query)
+        query = "UPDATE accounts SET email = %s WHERE userid = %s"
+        cursor.execute(query, (UserAccount.email, UserAccount.userid))
     except:
         print(f"\nERROR: Email address could not be updated. Please try again later")
     else:
@@ -279,16 +281,16 @@ def updateName(cursor, database, UserAccount):
     UserAccount.lastname = last
 
     try:
-        query = f"UPDATE accounts SET firstname = '{UserAccount.firstname}' WHERE userid = '{UserAccount.userid}'"
-        cursor.execute(query)
+        query = "UPDATE accounts SET firstname = %s WHERE userid = %s"
+        cursor.execute(query, (UserAccount.firstname, UserAccount.userid))
     except:
         print(f"\nERROR: Name could not be updated. Please try again later")
     else:
         database.commit()
 
     try:
-        query = f"UPDATE accounts SET lastname = '{UserAccount.lastname}' WHERE userid = '{UserAccount.userid}'"
-        cursor.execute(query)
+        query = "UPDATE accounts SET lastname = %s WHERE userid = %s"
+        cursor.execute(query, (UserAccount.lastname, UserAccount.userid))
     except:
         print(f"\nERROR: Name could not be updated. Please try again later")
     else:
@@ -304,8 +306,8 @@ def deleteAccount(cursor, database, UserAccount):
         if passwordChallenge == UserAccount.password:
             confirmDelete = input("\nAre you sure you want to delete your account? [y/n]: ")
             if (confirmDelete == "y") or (confirmDelete == "Y"):
-                query = f"DELETE a, l FROM accounts as a INNER JOIN lists as l on a.userid = l.userid WHERE a.userid = '{UserAccount.userid}'"
-                cursor.execute(query)
+                query = "DELETE a, l FROM accounts as a INNER JOIN lists as l on a.userid = l.userid WHERE a.userid = %s"
+                cursor.execute(query, (UserAccount.userid,))
                 database.commit()
 
                 UserAccount.username = ""

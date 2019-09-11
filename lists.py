@@ -18,18 +18,32 @@ def createlist(cursor, database, UserAccount, Store, Item):
     listname = input("Please enter a name for the list: ")
     userList = {}
     dbList = []
+    total = 0.00
+
+    print(UserAccount.userid)
+    print(type(UserAccount.userid))
+    print("\n")
+    print(listname)
+    print(type(listname))
+    print("\n")
+    print(total)
+    print(type(total))
+    print("\n")
+    try:
+        query = ("INSERT INTO lists (userid, listname, totalCost) " "VALUES (%s, %s, %s)")
+        values = (UserAccount.userid, listname, total)
+        cursor.execute(query, values)
+    except mysql.connector.errors as error:
+        print("Error")
+    else:
+        database.commit()
+        UserAccount.listCount += 1
+        query = "UPDATE accounts SET listcount = (%s) WHERE userid = %s"
+        cursor.execute(query, (UserAccount.listCount, UserAccount.userid))
+        database.commit()
     
-    query = f"INSERT INTO lists (userid, listname, totalCost) VALUES ({UserAccount.userid}, '{listname}', 0.00)"
-    cursor.execute(query)
-    database.commit()
-    
-    UserAccount.listCount += 1
-    query = f"UPDATE accounts SET listcount = ({UserAccount.listCount}) WHERE userid = {UserAccount.userid}"
-    cursor.execute(query)
-    database.commit()
-    
-    query = f"SELECT listid FROM lists WHERE listname = '{listname}';"
-    cursor.execute(query)
+    query = "SELECT listid FROM lists WHERE listname = %s;"
+    cursor.execute(query, (listname,))
     result = cursor.fetchall()
     unpack = result[0]
     listid = unpack[0]
@@ -74,8 +88,8 @@ def createlist(cursor, database, UserAccount, Store, Item):
                     print(f"\n\nUser list = \n{userList}\n\n")
                     dbList.append(Item.itemid)
                     
-                    query = f"INSERT INTO listDetails (listid, itemid, quantity, pricePerUnit) VALUES ({listid}, {Item.itemid}, 1, {Item.price})"
-                    cursor.execute(query)
+                    query = "INSERT INTO listDetails (listid, itemid, quantity, pricePerUnit) VALUES (%s, %s, 1, %s)"
+                    cursor.execute(query, (listid, Item.itemid, Item.price))
                     database.commit()
                                         
                     userSelection = addAnotherItem()
@@ -96,8 +110,8 @@ def viewLists(cursor, database, UserAccount):
     currentItem = Item()
     currentList = GroceryList()
     
-    query = f"SELECT userid, listid, listname FROM lists WHERE userid = {UserAccount.userid}"
-    cursor.execute(query)
+    query = "SELECT userid, listid, listname FROM lists WHERE userid = %s"
+    cursor.execute(query, (UserAccount.userid,))
     result = cursor.fetchall()
     print(result)
 
@@ -114,8 +128,8 @@ def viewLists(cursor, database, UserAccount):
         listContainer = []
     
         #TODO: Select only unique listid
-        query = f"SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE lists.listid = {currentList.listid}"
-        cursor.execute(query)
+        query = "SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE lists.listid = %s"
+        cursor.execute(query, (currentList.listid,))
         listItems = cursor.fetchall()
         for item in listItems:
             print("item = " + item)
@@ -129,8 +143,8 @@ def viewLists(cursor, database, UserAccount):
             if (item != ",") and (item != " "):
                 
                 currentItem.itemid = item
-                query = f"SELECT itemid, itemname, storename, category, price, unit FROM items INNER JOIN stores ON items.storeid = stores.storeid WHERE itemid = '{currentItem.itemid}'"
-                cursor.execute(query)
+                query = "SELECT itemid, itemname, storename, category, price, unit FROM items INNER JOIN stores ON items.storeid = stores.storeid WHERE itemid = %s"
+                cursor.execute(query, (currentItem.itemid,))
                 result = cursor.fetchall()
                 df2 = pd.DataFrame(result, columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
                 df = pd.concat([df, df2])
@@ -152,8 +166,8 @@ def viewLists(cursor, database, UserAccount):
             if int(listSelect) in UserAccount.lists:
                 currentList = GroceryList()
                 listContainer = []
-                query = f"SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE userid = {UserAccount.userid}"
-                cursor.execute(query)
+                query = "SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE userid = %s"
+                cursor.execute(query, (UserAccount.userid,))
                 listItems = cursor.fetchall()
                 for item in listItems:
                     unpack = item[0]
@@ -161,8 +175,8 @@ def viewLists(cursor, database, UserAccount):
 
                 currentList.items = listContainer
 
-                query = f"SELECT userid, listid, listname FROM lists WHERE listid = {listSelect}"
-                cursor.execute(query)
+                query = "SELECT userid, listid, listname FROM lists WHERE listid = %s"
+                cursor.execute(query, (listSelect,))
                 result = cursor.fetchall()
 
                 for entry in result:
@@ -173,8 +187,8 @@ def viewLists(cursor, database, UserAccount):
                 for item in currentList.items:
                         
                     currentItem.itemid = item
-                    query = f"SELECT itemid, itemname, storename, category, price, unit FROM items INNER JOIN stores ON items.storeid = stores.storeid WHERE itemid = '{currentItem.itemid}'"
-                    cursor.execute(query)
+                    query = "SELECT itemid, itemname, storename, category, price, unit FROM items INNER JOIN stores ON items.storeid = stores.storeid WHERE itemid = %s"
+                    cursor.execute(query, (currentItem.itemid,))
                     result = cursor.fetchall()
                     df2 = pd.DataFrame(result, columns=['Item ID', 'Item', 'Store Name', 'Category', 'Price', 'Unit'])
                     df = pd.concat([df, df2])
@@ -215,19 +229,22 @@ def editLists(cursor, database, List):
 def removeListItem(cursor, database, List):
     """ Recursive function to remove as many items from user's list as requested by user """
 
-    dropItem = input("Select the item id for the item you would like to remove: ")
-    print(List.items)
-    List.items = List.items.strip(f'{dropItem},')
-    print(List.items)
-    query = f"UPDATE lists SET listOfItemIDs = '{List.items}' WHERE listid = '{List.listid}'"
-    cursor.execute(query)
-    database.commit()
+    if List.items:
+        dropItem = input("Select the item id for the item you would like to remove: ")
+        print(List.items)
+        List.items = List.items.strip(f'{dropItem},')
+        print(List.items)
+        query = "UPDATE lists SET listOfItemIDs = %s WHERE listid = %s"
+        cursor.execute(query, (List.items, List.listid))
+        database.commit()
 
-    removeAnotherItem = input("Would you like to remove another item? [y/n]: ")
-    if (removeAnotherItem == "y") or (removeAnotherItem == "Y"):
-        removeListItem(cursor, database, List)
+        removeAnotherItem = input("Would you like to remove another item? [y/n]: ")
+        if (removeAnotherItem == "y") or (removeAnotherItem == "Y"):
+            removeListItem(cursor, database, List)
+        else:
+            pass
     else:
-        pass
+        print("\n\nNo items in list yet!")
 
 def updateListName(cursor, database, List):
     """ Updates the listname variable locally and in the database """
@@ -235,8 +252,8 @@ def updateListName(cursor, database, List):
     print(f"Current list name = {List.listname}\n")
     newListName = input("Please enter the new list name: ")
     List.listname = newListName
-    query = f"UPDATE lists SET listname = '{List.listname}' WHERE listid = '{List.listid}'"
-    cursor.execute(query)
+    query = "UPDATE lists SET listname = %s WHERE listid = %s"
+    cursor.execute(query, (List.listname, List.listid))
     database.commit()
     print(f"\n\nList name successfully changed to {List.listname}\n")
 
@@ -247,8 +264,8 @@ def deleteList(cursor, database, List):
     while selected == False:
         deleteList = input(f"Are you sure you want to delete {List.listname}? [y/n]: ")
         if (deleteList == "y") or (deleteList == "Y"):
-            query = f"DELETE FROM lists WHERE listid = {List.listid}"
-            cursor.execute(query)
+            query = "DELETE FROM lists WHERE listid = %s"
+            cursor.execute(query, (List.listid,))
             database.commit()
             selected = True
             return True
