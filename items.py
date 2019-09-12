@@ -1,6 +1,8 @@
-from accounts import *
+from accounts import returnSQLError
 from menus import createListMenu
 import pandas as pd
+import mysql.connector
+from mysql.connector.errors import Error
 
 class Store:
     def __init__(self):
@@ -88,7 +90,6 @@ def itemLookup(cursor, Item):
                 unpack = itemResults[0]
                 (itemid, itemname, storename, price, unit, category, subcategory, productSize, storeid) = unpack
 
-                #TODO: DRY
                 Item.itemid = itemid
                 Item.itemname = itemname
                 Item.price = price
@@ -98,6 +99,7 @@ def itemLookup(cursor, Item):
                 Item.storename = storename
                 Item.category = category
                 Item.subcategory = subcategory
+                
                 return True
 
 def addAnotherItem():
