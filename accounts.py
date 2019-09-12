@@ -7,7 +7,7 @@ from validate_email import validate_email
 from disposable_email_domains import blocklist
 from datetime import datetime
 
-from menus import *
+from menus import accountMenu
 from items import *
 
 class UserAccount:
@@ -30,7 +30,8 @@ class UserAccount:
         query = "SELECT username FROM accounts WHERE username = %s"
         cursor.execute(query, (username,))
         result = cursor.fetchall()
-        while len(result) != 0: #TODO:
+
+        while result:
             print("\n\n\n\n\nSorry that username is taken\n")
             username = input("Please select another username: ")
             query = "SELECT username FROM accounts WHERE username = %s"
@@ -59,7 +60,7 @@ class UserAccount:
         while UserAccount.email == "":
             email = input("Please enter your email address: ")
             validate = validate_email('example@example.com')
-            if validate == True:
+            if validate is True:
                 # validEmail = False
                 # while validEmail == False:
                 #     if email.split('@')[1] in blocklist:
@@ -234,7 +235,7 @@ def resetPassword(cursor, database, UserAccount):
     oldPassword = input("\nPlease enter old password: ")
     if oldPassword == UserAccount.password:
         matchingPasswords = False
-        while matchingPasswords == False:
+        while matchingPasswords is False:
             newPassword = input("\nPlease enter new password: ")
             retype = input("Please retype new password: ")
             if newPassword == retype:

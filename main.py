@@ -1,4 +1,3 @@
-
 import mysql.connector
 import os
 from validate_email import validate_email
@@ -28,7 +27,7 @@ cursor = database.cursor()
 exitProgram = False
 while exitProgram is False:
     enterProgram = False
-    while enterProgram == False:
+    while enterProgram is False:
         navigate = startMenu()
         currentUser = UserAccount()
         if navigate == "1":

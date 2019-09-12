@@ -78,6 +78,9 @@ def itemLookup(cursor, Item):
             except ValueError:
                 print("Invalid entry. Please type the number of the Item ID")
                 return False
+            except IndexError:
+                print("ERROR: Item not found")
+                lookupMethod = createListMenu()
             else:
                 query = "SELECT i.itemid, i.itemname, s.storename, i.price, i.unit, i.category, i.subcategory, i.productSize, i.storeid FROM items AS i INNER JOIN stores AS s ON i.storeid = s.storeid WHERE i.itemid = %s"
                 cursor.execute(query, (itemSelect,))
@@ -118,16 +121,15 @@ def priceLookup(cursor):
 
             query = "SELECT itemid, itemname, price, unit, productSize, storeid FROM items WHERE itemname LIKE %s ORDER BY itemname ASC"
             cursor.execute(query, (itemName,))
+            itemResults = cursor.fetchall()
+            unpack = itemResults[0]
         except IndexError:
-            print("ERROR: Item not found")
+            print("\nERROR: Item not found\n")
         except mysql.connector.Error as err:
             returnSQLError(err)
         else:
             # TODO: Return all objects not just one
             # Enumerate query results?
-
-            itemResults = cursor.fetchall()
-            unpack = itemResults[0]
             (itemid, itemname, price, unit, productSize, storeid) = unpack
 
             # ---------- Append Item object ---------- 
@@ -138,7 +140,7 @@ def priceLookup(cursor):
             Item.productSize = productSize
             Item.storeid = storeid
 
-            print("\nResults: \n")
+            print("\RESULTS: \n")
             print(f'{Item.itemid} ---' + " " + Item.itemname + " @ " + str(Item.price) + " per " + Item.unit + "\n")
             
             # ---------- Lookup another item ----------

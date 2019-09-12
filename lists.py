@@ -54,7 +54,7 @@ def createlist(cursor, database, UserAccount, Store, Item):
             optionSelect = storeLookup(cursor, Store)
 
             userSelection = False
-            while userSelection == False:
+            while userSelection is False:
                 print("Options: \n")
                 storeSelect = input(f'{Store.storeid} ---' + " " + Store.storename + " @ " + Store.address + "\nSelect a store number or type 'None': ")
                 
@@ -204,7 +204,7 @@ def editLists(cursor, database, List):
     updateListName(), editListMenu() """ 
     
     edited = False
-    while edited == False:
+    while edited is False:
         print("\n\n\n----- Edit list ------\n\n1 --- Remove item from list\n2 --- Change list name\n3 --- Delete list\n4 --- Back to main menu\n")
         editListMenu = input("Please type in a number from the menu: ")
         if editListMenu == "1":
