@@ -11,6 +11,33 @@ class Store:
         self.address = ""
     # def displayStoreDetails():
 
+    def lookupStore(cursor, Store):
+        # ---------- QUERY store ----------
+        try:
+            storeName = input("Enter the name of the store: ")
+            storeName += "%"
+            query = "SELECT storeid, storename, address FROM stores WHERE storename LIKE %s ORDER BY storename ASC"
+            cursor.execute(query, (storeName,))
+
+            # Give option to select inventory
+            # --- 
+            storeResults = cursor.fetchall()
+            unpack = storeResults[0]
+        except IndexError:
+            print("\n\n\nERROR: Store not found")
+            lookupMethod = createListMenu()
+        except mysql.connector.Error as err:
+                returnSQLError(err)
+        else:
+            selection = True
+            (storeid, storename, address) = unpack
+
+            # Store object
+            Store.storeid = storeid
+            Store.storename = storename
+            Store.address = address
+        return selection
+        
 class Item:
     def __init__(self):
         self.itemid = 0
@@ -22,36 +49,13 @@ class Item:
         self.productSize = ""
         self.storename = ""
         self.storeid = 0
-    # def displayItem():
 
-def storeLookup(cursor, Store):
-    # ---------- QUERY store ----------
-    try:
-        storeName = input("Enter the name of the store: ")
-        storeName += "%"
-        query = "SELECT storeid, storename, address FROM stores WHERE storename LIKE %s ORDER BY storename ASC"
-        cursor.execute(query, (storeName,))
+    def displayItem():
+        """ Pretty print item details (id, name, price/unit) """
 
-        # Give option to select inventory
-        # --- 
-        storeResults = cursor.fetchall()
-        unpack = storeResults[0]
-    except IndexError:
-        print("\n\n\nERROR: Store not found")
-        lookupMethod = createListMenu()
-    except mysql.connector.Error as err:
-            returnSQLError(err)
-    else:
-        selection = True
-        (storeid, storename, address) = unpack
+        print(f'{Item.itemid} ---' + " " + Item.itemname + " @ " + str(Item.price) + " per " + Item.unit + " @ " + Item.storename)
 
-        # Store object
-        Store.storeid = storeid
-        Store.storename = storename
-        Store.address = address
-    return selection
-
-def itemLookup(cursor, Item):
+def searchForItem(cursor, Item):
     try:
         itemName = input("Enter the name of an item: ")
         print("\n\n")
@@ -75,34 +79,44 @@ def itemLookup(cursor, Item):
         else:
             print(df)
             itemSelect = input("\n\nPlease enter the Item ID # of the item you would like to select: ")
-            try:
-                float(itemSelect)
-            except ValueError:
-                print("Invalid entry. Please type the number of the Item ID")
-                return False
-            except IndexError:
-                print("ERROR: Item not found")
-                lookupMethod = createListMenu()
-            else:
-                query = "SELECT i.itemid, i.itemname, s.storename, i.price, i.unit, i.category, i.subcategory, i.productSize, i.storeid FROM items AS i INNER JOIN stores AS s ON i.storeid = s.storeid WHERE i.itemid = %s"
-                cursor.execute(query, (itemSelect,))
-                itemResults = cursor.fetchall()
-                unpack = itemResults[0]
-                (itemid, itemname, storename, price, unit, category, subcategory, productSize, storeid) = unpack
+            itemIndexInDF = int(itemSelect) - 1
 
-                Item.itemid = itemid
-                Item.itemname = itemname
-                Item.price = price
-                Item.unit = unit
-                Item.productSize = productSize
-                Item.storeid = storeid
-                Item.storename = storename
-                Item.category = category
-                Item.subcategory = subcategory
-                
-                return True
+            try:
+                df.iloc[itemIndexInDF, :]
+            except IndexError:
+                print("Item ID not listed above")
+                return False
+            else:
+                try:
+                    float(itemSelect)
+                except ValueError:
+                    print("Invalid entry. Please type the number of the Item ID")
+                    return False
+                except IndexError:
+                    print("ERROR: Item not found")
+                    lookupMethod = createListMenu()
+                else:
+                    query = "SELECT i.itemid, i.itemname, s.storename, i.price, i.unit, i.category, i.subcategory, i.productSize, i.storeid FROM items AS i INNER JOIN stores AS s ON i.storeid = s.storeid WHERE i.itemid = %s"
+                    cursor.execute(query, (itemSelect,))
+                    itemResults = cursor.fetchall()
+                    unpack = itemResults[0]
+                    (itemid, itemname, storename, price, unit, category, subcategory, productSize, storeid) = unpack
+
+                    Item.itemid = itemid
+                    Item.itemname = itemname
+                    Item.price = price
+                    Item.unit = unit
+                    Item.productSize = productSize
+                    Item.storeid = storeid
+                    Item.storename = storename
+                    Item.category = category
+                    Item.subcategory = subcategory
+                    
+                    return True
 
 def addAnotherItem():
+    """ Prompts request for user to search for another item or not """
+
     addItem = input("Would you like to search for another item? [y/n]: ")
     if (addItem == "y") or (addItem == "Y"):
         userSelection = False
@@ -110,18 +124,16 @@ def addAnotherItem():
         userSelection = True
     return userSelection
 
-def priceLookup(cursor):
+def lookupItemPrice(cursor):
     """ If grocery item is in the 'database', print the price of the item """
+
     lookup = False
     while lookup is False:
         try:
             itemName = input("Enter the name of the item: ")
             itemName += "%"
 
-            # JOIN query
-            # --- 
-
-            query = "SELECT itemid, itemname, price, unit, productSize, storeid FROM items WHERE itemname LIKE %s ORDER BY itemname ASC"
+            query = "SELECT i.itemid, i.itemname, i.price, i.unit, i.productSize, i.storeid, s.storename FROM items AS i INNER JOIN stores AS s ON i.storeid = s.storeid WHERE itemname LIKE %s ORDER BY itemname ASC"
             cursor.execute(query, (itemName,))
             itemResults = cursor.fetchall()
             unpack = itemResults[0]
@@ -130,29 +142,24 @@ def priceLookup(cursor):
         except mysql.connector.Error as err:
             returnSQLError(err)
         else:
-            # TODO: Return all objects not just one
-            # Enumerate query results?
-            (itemid, itemname, price, unit, productSize, storeid) = unpack
+            print("\n\nRESULTS: \n")
+            for item in itemResults:
+                (itemid, itemname, price, unit, productSize, storeid, storename) = item
+                Item.itemid = itemid
+                Item.itemname = itemname
+                Item.price = price
+                Item.unit = unit
+                Item.productSize = productSize
+                Item.storeid = storeid
+                Item.storename = storename
 
-            # ---------- Append Item object ---------- 
-            Item.itemid = itemid
-            Item.itemname = itemname
-            Item.price = price
-            Item.unit = unit
-            Item.productSize = productSize
-            Item.storeid = storeid
+                Item.displayItem()
 
-            print("\RESULTS: \n")
-            print(f'{Item.itemid} ---' + " " + Item.itemname + " @ " + str(Item.price) + " per " + Item.unit + "\n")
-            
-            # ---------- Lookup another item ----------
-            nextItem = input("Would you like to select another item? [y/n]: ")
-            
+            nextItem = input("\nWould you like to select another item? [y/n]: ")
             if (nextItem == "y") or (nextItem == "Y"):
                 lookup = False
             elif (nextItem == "n") or (nextItem == "N"):
                 lookup = True
-
 
 def showAllItems(cursor, Item):
     """ Prints all available items to window from database """

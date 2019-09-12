@@ -1,0 +1,6 @@
+pandas
+validate_email
+disposable_email_domains
+mysql.connector
+mysql.connector.errors
+getpass

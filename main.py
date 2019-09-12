@@ -47,7 +47,7 @@ while exitProgram is False:
         elif navigate == "2":
             createlist(cursor, database, currentUser, currentStore, currentItem)
         elif navigate == "3":
-            priceLookup(cursor)
+            lookupItemPrice(cursor)
         elif navigate == "4":
             showAllItems(cursor, currentItem)
         elif navigate == "5":

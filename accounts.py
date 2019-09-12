@@ -3,8 +3,8 @@ from mysql.connector.errors import Error
 import os
 from validate_email import validate_email
 from disposable_email_domains import blocklist
+from getpass import getpass
 from datetime import datetime
-
 from menus import accountMenu
 
 class UserAccount:
@@ -41,8 +41,8 @@ class UserAccount:
         password field is updated to the chosen password """
 
         while UserAccount.password == "":
-            password = input("\nCreate a password: ")
-            retype = input("Retype password to confirm: ")
+            password = getpass("\nCreate a password: ")
+            retype = getpass("Retype password to confirm: ")
             match = (password == retype)
 
             if password == retype:
@@ -56,18 +56,11 @@ class UserAccount:
 
         while UserAccount.email == "":
             email = input("Please enter your email address: ")
-            validate = validate_email('example@example.com')
+            validate = validate_email(email)
             if validate is True:
-                # validEmail = False
-                # while validEmail == False:
-                #     if email.split('@')[1] in blocklist:
-                #         message = "Please enter your permanent email address."
-                #         print(message)
-                #     else:
-                #         validEmail == True
                 UserAccount.email = email
             else:
-                print("\nERROR: Invalid email. Please select your current email address")
+                print("\n\nERROR: Invalid email. Please select your current email address")
 
     def userDetails(self, UserAccount):
         """ Requests first and last name, plus phone number for user. User is given option to
@@ -121,11 +114,138 @@ class UserAccount:
             UserAccount.userid = accountID
             return True
 
-    def updateUsername(self, username, cursor, database):
-        """ Enters username value into the database """
-        query = "INSERT INTO accounts (username) VALUES (%s)"
-        cursor.execute(query, (username,))
-        database.commit()
+    def updateUsername(cursor, database, UserAccount):
+        """ Updates username locally and in database """
+
+        confirmNewUserName = False
+        while confirmNewUserName is False:
+            newUserName = input("\nPlease enter new username: ")
+            retype = input("\nPlease retype new username: ")
+            if newUserName == retype:
+                try:
+                    UserAccount.username = newUserName
+                    query = "UPDATE accounts SET username = %s WHERE userid = %s"
+                    cursor.execute(query, (UserAccount.username, UserAccount.userid))
+                except mysql.connector.Error as err:
+                    print("ERROR: Username could not be updated please try again later")
+                    returnSQLError(err)
+                else:
+                    database.commit()
+                    print(f"\n\nUsername successfully updated to: {UserAccount.username}\n")
+                    confirmNewUserName = True
+            else:
+                print("ERROR: Usernames do not match. Please try again")
+
+    def resetPassword(cursor, database, UserAccount):
+        """ Prompts user to verify current password and then select a new password. Result is
+        updated locally and in database """
+
+        oldPassword = getpass("\nPlease enter old password: ")
+        if oldPassword == UserAccount.password:
+            matchingPasswords = False
+            while matchingPasswords is False:
+                newPassword = getpass("\nPlease enter new password: ")
+                retype = getpass("Please retype new password: ")
+                if newPassword == retype:
+                    matchingPasswords = True
+                    UserAccount.password = newPassword
+                    try:
+                        query = "UPDATE accounts SET password = %s WHERE userid = %s"
+                        cursor.execute(query, (UserAccount.password, UserAccount.userid))
+                    except mysql.connector.Error as err:
+                        print("\nERROR: Password could not be updated. Please try again later.\n")
+                        returnSQLError(err)
+                    else:
+                        database.commit()
+                        print("\n\nPassword successfully updated.")
+                else:
+                    print("\nError passwords do not match")
+                    tryAgain = input("Try again? [y/n]")
+                    if (tryAgain == "y") or (tryAgain == "Y"):
+                        matchingPasswords = False
+                    elif (tryAgain == "n") or (tryAgain == "N"):
+                        matchingPasswords = True
+                    else:
+                        print("\nERROR: Please enter y or n")
+        else:
+            print("ERROR: incorrect password submitted")   
+            
+    def updateEmail(cursor, database, UserAccount):
+        """ Allows user to update field of choice. UserAccount detail is chosen
+        by the userField argument """
+
+        newEmail = input(f"\nPlease enter the new email address: ")
+        UserAccount.email = newEmail
+        try:
+            query = "UPDATE accounts SET email = %s WHERE userid = %s"
+            cursor.execute(query, (UserAccount.email, UserAccount.userid))
+        except mysql.connector.Error as err:
+            print(f"\n*ERROR: Email address could not be updated*\n")
+            returnSQLError(err)
+        else:
+            database.commit()
+            print(f"\n\nEmail address updated successfuly.")
+
+    def updateName(cursor, database, UserAccount):
+        """ Updates first and last name UserAccount fields """
+
+        first = input(f"\nFirst name: ")
+        UserAccount.firstname = first
+
+        last = input(f"Last name: ")
+        UserAccount.lastname = last
+
+        try:
+            query = "UPDATE accounts SET firstname = %s WHERE userid = %s"
+            cursor.execute(query, (UserAccount.firstname, UserAccount.userid))
+        except mysql.connector.Error as err:
+            print(f"\n*ERROR: First name could not be updated. Please try again later*\n")
+            returnSQLError(err)
+        else:
+            database.commit()
+
+        try:
+            query = "UPDATE accounts SET lastname = %s WHERE userid = %s"
+            cursor.execute(query, (UserAccount.lastname, UserAccount.userid))
+        except mysql.connector.Error as err:
+            print(f"\n*ERROR: Last name could not be updated. Please try again later*\n")
+            returnSQLError(err)
+        else:
+            database.commit()
+            print(f"\n\nName updated successfuly.")
+
+    def deleteAccount(cursor, database, UserAccount):
+        """ Deletes account locally and in database. Then ends the program """
+
+        challenge = False
+        while challenge is False:
+            passwordChallenge = getpass("\nPlease enter your password: ")
+            if passwordChallenge == UserAccount.password:
+                confirmDelete = input("\nAre you sure you want to delete your account? [y/n]: ")
+                if (confirmDelete == "y") or (confirmDelete == "Y"):
+                    query = "DELETE a, l FROM accounts as a INNER JOIN lists as l on a.userid = l.userid WHERE a.userid = %s"
+                    cursor.execute(query, (UserAccount.userid,))
+                    database.commit()
+
+                    UserAccount.username = ""
+                    UserAccount.password = ""
+                    UserAccount.firstname = ""
+                    UserAccount.lastname = ""
+                    UserAccount.email = ""
+                    UserAccount.phone = ""
+                    UserAccount.listCount = 0
+                    UserAccount.registrationDate = ""
+                    UserAccount.userid = 0
+
+                    print("Account successfully deleted.\n\n\nExiting program...\n\n")
+                    challenge = True
+                    exit()
+                elif (confirmDelete == "n") or (confirmDelete == "N"):
+                    challenge = True
+                else:
+                    print("\nERROR: Please type y or n")
+            else:
+                print("\nERROR: Passwords don't match")
 
 def signin(cursor, UserAccount):
     """ Queries database against the credentials provided and either validates or
@@ -136,7 +256,7 @@ def signin(cursor, UserAccount):
     while accountValid is False:
         try:
             username = input("Username: ")
-            password = input("Password: ")
+            password = getpass("Password: ")
             username = f"{username}"
 
             query = "SELECT * FROM accounts WHERE username = %s"
@@ -189,152 +309,19 @@ def accountSettings(cursor, database, UserAccount):
         option = accountMenu()    
         
         if option == "1":
-            updateUsername(cursor, database, UserAccount)
+            UserAccount.updateUsername(cursor, database, UserAccount)
         elif option == "2":
-            resetPassword(cursor, database, UserAccount)
+            UserAccount.resetPassword(cursor, database, UserAccount)
         elif option == "3":
-            updateEmail(cursor, database, UserAccount)
+            UserAccount.updateEmail(cursor, database, UserAccount)
         elif option == "4":
-            updateName(cursor, database, UserAccount)
+            UserAccount.updateName(cursor, database, UserAccount)
         elif option == "5":
-            deleteAccount(cursor, database, UserAccount)
+            UserAccount.deleteAccount(cursor, database, UserAccount)
         elif option == "6":
             menuSelect = True
         else:
             print("\nERROR: Please enter one of the numbers from the menu\n\n")
-
-def updateUsername(cursor, database, UserAccount):
-    """ Updates username locally and in database """
-
-    confirmNewUserName = False
-    while confirmNewUserName is False:
-        newUserName = input("\nPlease enter new username: ")
-        retype = input("\nPlease retype new username: ")
-        if newUserName == retype:
-            try:
-                UserAccount.username = newUserName
-                query = "UPDATE accounts SET username = %s WHERE userid = %s"
-                cursor.execute(query, (UserAccount.username, UserAccount.userid))
-            except mysql.connector.Error as err:
-                print("ERROR: Username could not be updated please try again later")
-                returnSQLError(err)
-            else:
-                database.commit()
-                print(f"\n\nUsername successfully updated to: {UserAccount.username}\n")
-                confirmNewUserName = True
-        else:
-            print("ERROR: Usernames do not match. Please try again")
-
-def resetPassword(cursor, database, UserAccount):
-    """ Prompts user to verify current password and then select a new password. Result is
-    updated locally and in database """
-
-    oldPassword = input("\nPlease enter old password: ")
-    if oldPassword == UserAccount.password:
-        matchingPasswords = False
-        while matchingPasswords is False:
-            newPassword = input("\nPlease enter new password: ")
-            retype = input("Please retype new password: ")
-            if newPassword == retype:
-                matchingPasswords = True
-                UserAccount.password = newPassword
-                try:
-                    query = "UPDATE accounts SET password = %s WHERE userid = %s"
-                    cursor.execute(query, (UserAccount.password, UserAccount.userid))
-                except mysql.connector.Error as err:
-                    print("\nERROR: Password could not be updated. Please try again later.\n")
-                    returnSQLError(err)
-                else:
-                    database.commit()
-                    print("\n\nPassword successfully updated.")
-            else:
-                print("\nError passwords do not match")
-                tryAgain = input("Try again? [y/n]")
-                if (tryAgain == "y") or (tryAgain == "Y"):
-                    matchingPasswords = False
-                elif (tryAgain == "n") or (tryAgain == "N"):
-                    matchingPasswords = True
-                else:
-                    print("\nERROR: Please enter y or n")
-    else:
-        print("ERROR: incorrect password submitted")   
-        
-def updateEmail(cursor, database, UserAccount):
-    """ Allows user to update field of choice. UserAccount detail is chosen
-    by the userField argument """
-
-    newEmail = input(f"\nPlease enter the new email address: ")
-    UserAccount.email = newEmail
-    try:
-        query = "UPDATE accounts SET email = %s WHERE userid = %s"
-        cursor.execute(query, (UserAccount.email, UserAccount.userid))
-    except mysql.connector.Error as err:
-        print(f"\n*ERROR: Email address could not be updated*\n")
-        returnSQLError(err)
-    else:
-        database.commit()
-        print(f"\n\nEmail address updated successfuly.")
-
-def updateName(cursor, database, UserAccount):
-    """ Updates first and last name UserAccount fields """
-
-    first = input(f"\nFirst name: ")
-    UserAccount.firstname = first
-
-    last = input(f"Last name: ")
-    UserAccount.lastname = last
-
-    try:
-        query = "UPDATE accounts SET firstname = %s WHERE userid = %s"
-        cursor.execute(query, (UserAccount.firstname, UserAccount.userid))
-    except mysql.connector.Error as err:
-        print(f"\n*ERROR: First name could not be updated. Please try again later*\n")
-        returnSQLError(err)
-    else:
-        database.commit()
-
-    try:
-        query = "UPDATE accounts SET lastname = %s WHERE userid = %s"
-        cursor.execute(query, (UserAccount.lastname, UserAccount.userid))
-    except mysql.connector.Error as err:
-        print(f"\n*ERROR: Last name could not be updated. Please try again later*\n")
-        returnSQLError(err)
-    else:
-        database.commit()
-        print(f"\n\nName updated successfuly.")
-
-def deleteAccount(cursor, database, UserAccount):
-    """ Deletes account locally and in database. Then ends the program """
-
-    challenge = False
-    while challenge is False:
-        passwordChallenge = input("\nPlease enter your password: ")
-        if passwordChallenge == UserAccount.password:
-            confirmDelete = input("\nAre you sure you want to delete your account? [y/n]: ")
-            if (confirmDelete == "y") or (confirmDelete == "Y"):
-                query = "DELETE a, l FROM accounts as a INNER JOIN lists as l on a.userid = l.userid WHERE a.userid = %s"
-                cursor.execute(query, (UserAccount.userid,))
-                database.commit()
-
-                UserAccount.username = ""
-                UserAccount.password = ""
-                UserAccount.firstname = ""
-                UserAccount.lastname = ""
-                UserAccount.email = ""
-                UserAccount.phone = ""
-                UserAccount.listCount = 0
-                UserAccount.registrationDate = ""
-                UserAccount.userid = 0
-
-                print("Account successfully deleted.\n\n\nExiting program...\n\n")
-                challenge = True
-                exit()
-            elif (confirmDelete == "n") or (confirmDelete == "N"):
-                challenge = True
-            else:
-                print("\nERROR: Please type y or n")
-        else:
-            print("\nERROR: Passwords don't match")
 
 def returnSQLError(error):
     """ Takes the error declaration as argument and returns:

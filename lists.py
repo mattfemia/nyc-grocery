@@ -1,6 +1,6 @@
 from accounts import UserAccount, returnSQLError
 from menus import createListMenu
-from items import Item, storeLookup, itemLookup, addAnotherItem
+from items import Item, Store, searchForItem, addAnotherItem
 import pandas as pd
 import mysql.connector
 from mysql.connector.errors import Error
@@ -13,7 +13,6 @@ class GroceryList:
         self.listname = ""
         self.items = ""
 
-        
 def createlist(cursor, database, UserAccount, Store, Item):
     """ Creates new list locally and in rdb. User can add item directly or by searching inventory
     of a specific vendor """
@@ -42,9 +41,6 @@ def createlist(cursor, database, UserAccount, Store, Item):
     result = cursor.fetchall()
     unpack = result[0]
     listid = unpack[0]
-    print(f"LIST ID = {listid}")
-    print(listid)
-    
     
     lookupMethod = createListMenu()
     
@@ -54,7 +50,7 @@ def createlist(cursor, database, UserAccount, Store, Item):
 
             #TODO: GIVE OPTION TO SELECT STORE BY NEIGHBORHOOD, LIST ALL STORES, ETC (query location table instead)
 
-            optionSelect = storeLookup(cursor, Store)
+            optionSelect = Store.lookupStore(cursor, Store)
 
             userSelection = False
             while userSelection is False:
@@ -76,7 +72,7 @@ def createlist(cursor, database, UserAccount, Store, Item):
 
             userSelection = False
             while userSelection is False:
-                optionSelect = itemLookup(cursor, Item)
+                optionSelect = searchForItem(cursor, Item)
                 if optionSelect is True:
                     userList[f"{Item.itemname}"] = f"{Item.price} / {Item.unit}"
                     print(f"\n{Item.itemname} successfully added to {listname}!")

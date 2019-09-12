@@ -6,3 +6,4 @@ venv/
 grocery.sql
 grocery-edits.sql
 .vscode/
+.DS_Store

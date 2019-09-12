@@ -34,7 +34,7 @@ def mainMenu(username):
 def createListMenu():
     """ Simple menu displayed when selecting "Create a new list" """
 
-    lookupMethod = input("\n1 --- Select store location\n\n2 --- Lookup item\n")
+    lookupMethod = input("\n1 --- Select store location\n\n2 --- Lookup item\nChoose your lookup method: ")
     return lookupMethod
 
 def accountMenu():
