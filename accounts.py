@@ -1,5 +1,3 @@
-#!!!!! SET ENVIRONMENT VARIABLE DATABASE_PW OR PROG WILL NOT RUN !!!!!
-
 import mysql.connector
 from mysql.connector.errors import Error
 import os
@@ -8,7 +6,6 @@ from disposable_email_domains import blocklist
 from datetime import datetime
 
 from menus import accountMenu
-from items import *
 
 class UserAccount:
     def __init__(self):

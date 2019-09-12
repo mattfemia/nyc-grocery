@@ -1,5 +1,5 @@
 from accounts import *
-from menus import *
+from menus import createListMenu
 import pandas as pd
 
 class Store:
@@ -67,7 +67,7 @@ def itemLookup(cursor, Item):
     else:
         df = pd.DataFrame(itemResults, columns=['Item ID', 'Item', 'Store ID', 'Price', 'Unit', 'Size'])    
         df.set_index('Item ID', inplace=True, drop=True)
-        if df.empty == True:
+        if df.empty:
             print("\n\nSorry, no item with that name is in our database")
             return False
         else:

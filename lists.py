@@ -1,6 +1,9 @@
-from accounts import *
-from menus import *
+from accounts import UserAccount, returnSQLError
+from menus import createListMenu
+from items import Item, storeLookup, itemLookup, addAnotherItem
 import pandas as pd
+import mysql.connector
+from mysql.connector.errors import Error
 
 
 class GroceryList:
@@ -106,10 +109,6 @@ def viewLists(cursor, database, UserAccount):
     cursor.execute(query, (UserAccount.userid,))
     result = cursor.fetchall()
     print(result)
-
-
-    #TODO: This is only accounting for a user having one list -- make it so the user selects which list to edit
-    #TODO: Restructure database to have an ORDERS table --> then reference that table through orderid belonging to userid 'x'
     
     for entry in result:
         currentList.listid = entry[1]
@@ -119,7 +118,6 @@ def viewLists(cursor, database, UserAccount):
         
         listContainer = []
     
-        #TODO: Select only unique listid
         query = "SELECT itemid FROM listdetails INNER JOIN lists ON listdetails.listid = lists.listid WHERE lists.listid = %s"
         cursor.execute(query, (currentList.listid,))
         listItems = cursor.fetchall()

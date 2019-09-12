@@ -1,4 +1,3 @@
-import mysql.connector
 import os
 from validate_email import validate_email
 from disposable_email_domains import blocklist
@@ -6,7 +5,7 @@ from disposable_email_domains import blocklist
 # Local file dependencies
 from accounts import *
 from items import *
-from menus import *
+from menus import startMenu, mainMenu
 from lists import *
 
 # ------------ PROGRAM BEGINS HERE ------------ #
