@@ -108,7 +108,7 @@ def addAnotherItem():
 def priceLookup(cursor):
     """ If grocery item is in the 'database', print the price of the item """
     lookup = False
-    while lookup == False:
+    while lookup is False:
         try:
             itemName = input("Enter the name of the item: ")
             itemName += "%"
@@ -158,4 +158,5 @@ def showAllItems(cursor, Item):
 
     df = pd.DataFrame(itemResults, columns=['Item ID', 'Item', 'Store ID', 'Category', 'Subcategory', 'Price', 'Unit', 'Size'])    
     df.set_index('Item ID', inplace=True, drop=True)
-    print(df) 
+    print(df)
+ 

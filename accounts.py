@@ -30,7 +30,7 @@ class UserAccount:
         query = "SELECT username FROM accounts WHERE username = %s"
         cursor.execute(query, (username,))
         result = cursor.fetchall()
-        while len(result) != 0:
+        while len(result) != 0: #TODO:
             print("\n\n\n\n\nSorry that username is taken\n")
             username = input("Please select another username: ")
             query = "SELECT username FROM accounts WHERE username = %s"
@@ -83,7 +83,7 @@ class UserAccount:
             UserAccount.lastname = lastName
             
             phone = False
-            while phone == False:
+            while phone is False:
                 phoneNumber = input("Phone number: ")
                 try:
                     float(phoneNumber)
@@ -135,7 +135,7 @@ def signin(cursor, UserAccount):
     populated with all corresponding User variables """
 
     accountValid = False
-    while accountValid == False:
+    while accountValid is False:
         try:
             username = input("Username: ")
             password = input("Password: ")
@@ -187,7 +187,7 @@ def accountSettings(cursor, database, UserAccount):
     -- aside from creating an account """
     
     menuSelect = False
-    while menuSelect == False:
+    while menuSelect is False:
         option = accountMenu()    
         
         if option == "1":
@@ -208,8 +208,8 @@ def accountSettings(cursor, database, UserAccount):
 def updateUsername(cursor, database, UserAccount):
     """ Updates username locally and in database """
 
-    confirm = False
-    while confirm == False:
+    confirmNewUserName = False
+    while confirmNewUserName is False:
         newUserName = input("\nPlease enter new username: ")
         retype = input("\nPlease retype new username: ")
         if newUserName == retype:
@@ -223,7 +223,7 @@ def updateUsername(cursor, database, UserAccount):
             else:
                 database.commit()
                 print(f"\n\nUsername successfully updated to: {UserAccount.username}\n")
-                confirm = True
+                confirmNewUserName = True
         else:
             print("ERROR: Usernames do not match. Please try again")
 
@@ -309,7 +309,7 @@ def deleteAccount(cursor, database, UserAccount):
     """ Deletes account locally and in database. Then ends the program """
 
     challenge = False
-    while challenge == False:
+    while challenge is False:
         passwordChallenge = input("\nPlease enter your password: ")
         if passwordChallenge == UserAccount.password:
             confirmDelete = input("\nAre you sure you want to delete your account? [y/n]: ")

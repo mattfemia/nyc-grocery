@@ -26,7 +26,7 @@ cursor = database.cursor()
 # ------------ Start menu ------------ #
 
 exitProgram = False
-while exitProgram == False:
+while exitProgram is False:
     enterProgram = False
     while enterProgram == False:
         navigate = startMenu()
@@ -39,7 +39,7 @@ while exitProgram == False:
 
     # ------------ Main Menu ------------ #
     logged = False
-    while logged == False:
+    while logged is False:
         navigate = mainMenu(currentUser.username)
         currentStore = Store()
         currentItem = Item()

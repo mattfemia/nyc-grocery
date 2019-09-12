@@ -46,7 +46,7 @@ def createlist(cursor, database, UserAccount, Store, Item):
     lookupMethod = createListMenu()
     
     optionSelect = False
-    while optionSelect == False:
+    while optionSelect is False:
         if lookupMethod == "1":
 
             #TODO: GIVE OPTION TO SELECT STORE BY NEIGHBORHOOD, LIST ALL STORES, ETC (query location table instead)
@@ -72,9 +72,9 @@ def createlist(cursor, database, UserAccount, Store, Item):
         elif lookupMethod == "2":
 
             userSelection = False
-            while userSelection == False:
+            while userSelection is False:
                 optionSelect = itemLookup(cursor, Item)
-                if optionSelect == True:
+                if optionSelect is True:
                     userList[f"{Item.itemname}"] = f"{Item.price} / {Item.unit}"
                     print(f"\n{Item.itemname} successfully added to {listname}!")
                     print(f"\n\nUser list = \n{userList}\n\n")
@@ -153,7 +153,7 @@ def viewLists(cursor, database, UserAccount):
 
         # TODO: Disable user from accessing lists outside of their own (currently can type any list id and retrieve it)
         validList = False
-        while validList == False:
+        while validList is False:
             listSelect = input("Please enter the List ID shown above the list you would like to edit: ")
             if int(listSelect) in UserAccount.lists:
                 currentList = GroceryList()
@@ -253,7 +253,7 @@ def deleteList(cursor, database, List):
     """ Removes list instance locally and in database """
 
     selected = False
-    while selected == False:
+    while selected is False:
         deleteList = input(f"Are you sure you want to delete {List.listname}? [y/n]: ")
         if (deleteList == "y") or (deleteList == "Y"):
             query = "DELETE FROM lists WHERE listid = %s"
@@ -266,4 +266,3 @@ def deleteList(cursor, database, List):
             return False
         else:
             print("\nERROR: incorrect selection. Type y or n to confirm or deny removal\n")
-
