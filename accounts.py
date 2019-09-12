@@ -1,6 +1,7 @@
 #!!!!! SET ENVIRONMENT VARIABLE DATABASE_PW OR PROG WILL NOT RUN !!!!!
 
 import mysql.connector
+from mysql.connector.errors import Error
 import os
 from validate_email import validate_email
 from disposable_email_domains import blocklist
@@ -45,7 +46,7 @@ class UserAccount:
             password = input("\nCreate a password: ")
             retype = input("Retype password to confirm: ")
             match = (password == retype)
-            print(match)
+
             if password == retype:
                 UserAccount.password = password
             else:
@@ -110,8 +111,9 @@ class UserAccount:
             query = "INSERT INTO accounts (username, firstname, lastname, email, password, \
             phone, listcount, registrationdate) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
             cursor.execute(query, (UserAccount.username, UserAccount.firstname, UserAccount.lastname, UserAccount.email, UserAccount.password, int(UserAccount.phone), UserAccount.listCount, str(UserAccount.registrationDate)))
-        except:
-            print("ERROR: Please try again later")
+        except mysql.connector.Error as err:
+            print("ERROR: Account could not be created")
+            returnSQLError(err)
             return False
         else:
             database.commit()
@@ -141,8 +143,9 @@ def signin(cursor, UserAccount):
 
             query = "SELECT * FROM accounts WHERE username = %s"
             cursor.execute(query, (username,))
-        except mysql.connector.errors.ProgrammingError:
+        except mysql.connector.Error as err:
             print("ERROR: Account information is not valid")
+            returnSQLError(err)
             accountValid = False
             return accountValid
         else:
@@ -214,8 +217,9 @@ def updateUsername(cursor, database, UserAccount):
                 UserAccount.username = newUserName
                 query = "UPDATE accounts SET username = %s WHERE userid = %s"
                 cursor.execute(query, (UserAccount.username, UserAccount.userid))
-            except:
+            except mysql.connector.Error as err:
                 print("ERROR: Username could not be updated please try again later")
+                returnSQLError(err)
             else:
                 database.commit()
                 print(f"\n\nUsername successfully updated to: {UserAccount.username}\n")
@@ -239,8 +243,9 @@ def resetPassword(cursor, database, UserAccount):
                 try:
                     query = "UPDATE accounts SET password = %s WHERE userid = %s"
                     cursor.execute(query, (UserAccount.password, UserAccount.userid))
-                except:
+                except mysql.connector.Error as err:
                     print("\nERROR: Password could not be updated. Please try again later.\n")
+                    returnSQLError(err)
                 else:
                     database.commit()
                     print("\n\nPassword successfully updated.")
@@ -265,8 +270,9 @@ def updateEmail(cursor, database, UserAccount):
     try:
         query = "UPDATE accounts SET email = %s WHERE userid = %s"
         cursor.execute(query, (UserAccount.email, UserAccount.userid))
-    except:
-        print(f"\nERROR: Email address could not be updated. Please try again later")
+    except mysql.connector.Error as err:
+        print(f"\n*ERROR: Email address could not be updated*\n")
+        returnSQLError(err)
     else:
         database.commit()
         print(f"\n\nEmail address updated successfuly.")
@@ -283,16 +289,18 @@ def updateName(cursor, database, UserAccount):
     try:
         query = "UPDATE accounts SET firstname = %s WHERE userid = %s"
         cursor.execute(query, (UserAccount.firstname, UserAccount.userid))
-    except:
-        print(f"\nERROR: Name could not be updated. Please try again later")
+    except mysql.connector.Error as err:
+        print(f"\n*ERROR: First name could not be updated. Please try again later*\n")
+        returnSQLError(err)
     else:
         database.commit()
 
     try:
         query = "UPDATE accounts SET lastname = %s WHERE userid = %s"
         cursor.execute(query, (UserAccount.lastname, UserAccount.userid))
-    except:
-        print(f"\nERROR: Name could not be updated. Please try again later")
+    except mysql.connector.Error as err:
+        print(f"\n*ERROR: Last name could not be updated. Please try again later*\n")
+        returnSQLError(err)
     else:
         database.commit()
         print(f"\n\nName updated successfuly.")
@@ -329,3 +337,11 @@ def deleteAccount(cursor, database, UserAccount):
                 print("\nERROR: Please type y or n")
         else:
             print("\nERROR: Passwords don't match")
+
+def returnSQLError(error):
+    """ Takes the error declaration as argument and returns:
+    error number, SQLState value, and complete error message """
+
+    print("Error code:", error.errno)
+    print("SQLSTATE value:", error.sqlstate) 
+    print ("Error message:", error.msg)

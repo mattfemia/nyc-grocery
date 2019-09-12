@@ -20,21 +20,13 @@ def createlist(cursor, database, UserAccount, Store, Item):
     dbList = []
     total = 0.00
 
-    print(UserAccount.userid)
-    print(type(UserAccount.userid))
-    print("\n")
-    print(listname)
-    print(type(listname))
-    print("\n")
-    print(total)
-    print(type(total))
-    print("\n")
     try:
         query = ("INSERT INTO lists (userid, listname, totalCost) " "VALUES (%s, %s, %s)")
         values = (UserAccount.userid, listname, total)
         cursor.execute(query, values)
-    except mysql.connector.errors as error:
-        print("Error")
+    except mysql.connector.Error as err:
+        print("\nList unsuccessfully created")
+        returnSQLError(err)
     else:
         database.commit()
         UserAccount.listCount += 1

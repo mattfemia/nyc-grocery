@@ -37,6 +37,8 @@ def storeLookup(cursor, Store):
     except IndexError:
         print("\n\n\nERROR: Store not found")
         lookupMethod = createListMenu()
+    except mysql.connector.Error as err:
+            returnSQLError(err)
     else:
         selection = True
         (storeid, storename, address) = unpack
@@ -60,6 +62,8 @@ def itemLookup(cursor, Item):
     except IndexError:
         print("ERROR: Item not found")
         lookupMethod = createListMenu()
+    except mysql.connector.Error as err:
+            returnSQLError(err)
     else:
         df = pd.DataFrame(itemResults, columns=['Item ID', 'Item', 'Store ID', 'Price', 'Unit', 'Size'])    
         df.set_index('Item ID', inplace=True, drop=True)
@@ -116,6 +120,8 @@ def priceLookup(cursor):
             cursor.execute(query, (itemName,))
         except IndexError:
             print("ERROR: Item not found")
+        except mysql.connector.Error as err:
+            returnSQLError(err)
         else:
             # TODO: Return all objects not just one
             # Enumerate query results?

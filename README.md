@@ -15,7 +15,7 @@
 - [x] CLI interface text application
   - [x] Database design
   - [x] Basic Functionality (Account creation, database queries, program navigation)
-  - [ ] Debug
+  - [ ] Refactor
   - [ ] Restructure database based on any new features
   - [ ] Write tests
   - [ ] Populate database (web scraper, APIs, manually)
