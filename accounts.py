@@ -5,6 +5,7 @@ from validate_email import validate_email
 from disposable_email_domains import blocklist
 from getpass import getpass
 from datetime import datetime
+import bcrypt
 from menus import accountMenu
 
 class UserAccount:
@@ -97,6 +98,10 @@ class UserAccount:
         UserAccount.createPassword(UserAccount)
         UserAccount.assignEmail(UserAccount)
         UserAccount.userDetails(UserAccount)
+
+        salt = bcrypt.gensalt(rounds=10)
+        UserAccount.password = bcrypt.hashpw(UserAccount.password.encode('utf8'), salt)
+        print(UserAccount.password)
 
         try:
             query = "INSERT INTO accounts (username, firstname, lastname, email, password, \
@@ -276,7 +281,7 @@ def signin(cursor, UserAccount):
                 UserAccount.firstname = first
                 UserAccount.lastname = last
                 UserAccount.email = email
-                if pw != password:
+                if (bcrypt.checkpw(password.encode('utf8'), pw.encode('utf8')) == False):
                     print("\n\n----- ERROR: Information is not valid. Please retry or signup for an account -----")
                     accountValid = False
                     return accountValid
@@ -285,7 +290,7 @@ def signin(cursor, UserAccount):
                     UserAccount.phone = phone
                     UserAccount.listCount = listcount
                     UserAccount.registrationDate = regdate
-                    print("Success!")
+                    print("/n/nSuccessful login!")
                     if UserAccount.listCount > 0:
                         query = "SELECT listid FROM lists WHERE userid = %s"
                         cursor.execute(query, (UserAccount.userid,))
