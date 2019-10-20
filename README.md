@@ -1,4 +1,4 @@
-[![CodeFactor](https://www.codefactor.io/repository/github/mattfemia/grocery/badge)](https://www.codefactor.io/repository/github/mattfemia/grocery)
+[![CodeFactor](https://www.codefactor.io/repository/github/mattfemia/grocery/badge?s=60c6499b2f9742d7c4dafd0990e4fed43ec1a714)](https://www.codefactor.io/repository/github/mattfemia/grocery)
 
 # NYC GROCERY APP
 
