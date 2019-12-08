@@ -1,4 +1,4 @@
-[![CodeFactor](https://www.codefactor.io/repository/github/mattfemia/grocery/badge)](https://www.codefactor.io/repository/github/mattfemia/grocery)
+[![CodeFactor](https://www.codefactor.io/repository/github/mattfemia/nyc-grocery/badge)](https://www.codefactor.io/repository/github/mattfemia/nyc-grocery)
 
 # NYC GROCERY APP
 
@@ -30,13 +30,11 @@
   - [x] Database design
   - [x] Basic Functionality (Account creation, database queries, program navigation)
   - [ ] Refactor
-  - [ ] Restructure database based on any new features
-  - [ ] Write tests
+  - [x] Restructure database based on any new features
+  - [ ] Write tests [ retrospectively ]
   - [ ] Populate database (web scraper, APIs, manually)
   - [ ] Polish + test functionality with .exe file
 - [ ] Temporary GUI --> Flask web app or JS-based interface
 - [ ] Mobile application
   - [ ] iOS
   - [ ] Android
-- [ ] Recruit vendors & business owners to self-report inventory
-- [ ] Expand locations
