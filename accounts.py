@@ -101,8 +101,7 @@ class UserAccount:
 
         salt = bcrypt.gensalt(rounds=10)
         UserAccount.password = bcrypt.hashpw(UserAccount.password.encode('utf8'), salt)
-        print(UserAccount.password)
-
+        
         try:
             query = "INSERT INTO accounts (username, firstname, lastname, email, password, \
             phone, listcount, registrationdate) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"

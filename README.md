@@ -10,6 +10,20 @@
 
 ---
 
+## Welcome Menu
+![Welcome screen](screenshots/welcome.png)
+
+## Main Menu
+![Main Menu screen](screenshots/menu.png)
+
+## Account 
+![Create account screen](screenshots/account.png)
+
+## Grocery Lists
+![Creating a grocery list](screenshots/list.png)
+  
+---
+
 #### Tentative project Outline:
 
 - [x] CLI interface text application
